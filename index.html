@@ -9,41 +9,150 @@
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda+SC:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #111; color: #eee; font-family: 'Bodoni Moda SC', Georgia, serif; }
-    header { padding: 3rem 2rem 1.5rem; text-align: center; border-bottom: 1px solid #222; }
-    header h1 { font-size: 2rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: #ccc; }
-    main { max-width: 820px; margin: 0 auto; padding: 3rem 1.5rem 5rem; display: flex; flex-direction: column; gap: 5rem; }
-    article { display: flex; flex-direction: column; gap: 1rem; }
-    article img { width: 100%; display: block; border-radius: 2px; }
-    .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
-    .caption { font-size: 1.05rem; font-weight: 400; color: #ddd; line-height: 1.6; }
-    .date { font-size: 0.8rem; color: #555; white-space: nowrap; letter-spacing: 0.05em; }
+
+    body {
+      background: #111;
+      color: #eee;
+      font-family: 'Bodoni Moda SC', Georgia, serif;
+    }
+
+    header {
+      padding: 4rem 2rem 2.5rem;
+      text-align: center;
+      border-bottom: 1px solid #222;
+    }
+
+    header h1 {
+      font-size: 4.5rem;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #ccc;
+    }
+
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 6rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    article {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    article img {
+      width: 100%;
+      display: block;
+      border-radius: 2px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+    }
+
+    .caption {
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: #ddd;
+      line-height: 1.6;
+    }
+
+    .date {
+      font-size: 0.8rem;
+      color: #555;
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+    }
+
+    /* Golden divider */
+    .divider {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2.5rem 0;
+      width: 100%;
+    }
+
+    .divider-line {
+      width: 1px;
+      height: 192px;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        #C9A84C 18%,
+        #D4AF37 50%,
+        #C9A84C 82%,
+        transparent 100%
+      );
+    }
   </style>
 </head>
 <body>
   <header><h1>SinisterNL</h1></header>
   <main>
-    <article>
+
+    <article id="photo-1">
       <img src="images/beach.jpg" alt="Playa Forti">
       <div class="meta">
         <p class="caption">A day at Playa Forti.</p>
         <span class="date">3 Apr 2026</span>
       </div>
     </article>
-    <article>
+
+    <div class="divider">
+      <div class="divider-line" data-id="d1" data-next="photo-2"></div>
+    </div>
+
+    <article id="photo-2">
       <img src="images/coastline.jpg" alt="Dark clouds over the coastline">
       <div class="meta">
         <p class="caption">Facing the dark clouds.</p>
         <span class="date">30 Mar 2026</span>
       </div>
     </article>
-    <article>
+
+    <div class="divider">
+      <div class="divider-line" data-id="d2" data-next="photo-3"></div>
+    </div>
+
+    <article id="photo-3">
       <img src="images/food.jpg" alt="Lunch">
       <div class="meta">
         <p class="caption">Lunch.</p>
         <span class="date">20 Nov 2024</span>
       </div>
     </article>
+
   </main>
+
+  <script>
+    const lines = document.querySelectorAll('.divider-line');
+    const cooldown = new Set();
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const id = entry.target.dataset.id;
+        if (entry.intersectionRatio >= 1 && !cooldown.has(id)) {
+          cooldown.add(id);
+          const nextPhoto = document.getElementById(entry.target.dataset.next);
+          if (nextPhoto) {
+            nextPhoto.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          setTimeout(() => cooldown.delete(id), 1500);
+        }
+      });
+    }, { threshold: 1.0 });
+
+    lines.forEach(line => observer.observe(line));
+  </script>
 </body>
 </html>
