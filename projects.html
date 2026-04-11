@@ -121,13 +121,16 @@
     .open-btn svg { width: 12px; height: 12px; fill: currentColor; }
 
     /* ── Mobile ── */
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       header { padding: 2.5rem 1.2rem 1.8rem; }
-      header h1 { font-size: 2.6rem; letter-spacing: 0.2em; }
+      header h1 { font-size: 2.4rem; letter-spacing: 0.15em; }
       main { padding: 2.5rem 1rem 4rem; gap: 2rem; }
       .project-card { padding: 1.4rem; }
       .project-header { flex-direction: column; gap: 0.5rem; }
       .project-title { font-size: 1.3rem; }
+    }
+    @media (max-width: 430px) {
+      header h1 { font-size: 1.9rem; letter-spacing: 0.1em; }
     }
   </style>
 </head>
