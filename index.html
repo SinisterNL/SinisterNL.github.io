@@ -60,9 +60,33 @@
 
     /* ── Header ── */
     header {
-      padding: 4rem 2rem 2.5rem;
-      text-align: center; border-bottom: 1px solid #222;
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      border-bottom: 1px solid #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
     }
+
+    .instagram-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #D4AF37;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .instagram-link:hover { opacity: 0.6; }
+    .instagram-link svg {
+      width: 28px; height: 28px;
+      fill: none;
+      stroke: #D4AF37;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     header h1 {
       font-size: 4.5rem; font-weight: 400;
       letter-spacing: 0.3em; text-transform: uppercase; color: #ccc;
@@ -75,20 +99,10 @@
       display: flex; flex-direction: column; align-items: center;
     }
 
-    /* ── Every post ── */
-    article {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
+    article { width: 100%; display: flex; flex-direction: column; gap: 0; }
+    article img { width: 100%; display: block; border-radius: 2px; }
 
-    /* ── Photo post ── */
-    article img {
-      width: 100%; display: block; border-radius: 2px;
-    }
-
-    /* ── Horizontal gold rule (photo → caption) ── */
+    /* ── Horizontal gold rule ── */
     .photo-rule {
       width: 100%; height: 1px; margin: 1rem 0;
       background: linear-gradient(
@@ -96,53 +110,30 @@
       );
     }
 
-    /* ── Text post (project update) ── */
+    /* ── Text post ── */
     .text-post {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 1rem;
-      padding: 1.5rem 0;
+      display: flex; justify-content: space-between;
+      align-items: baseline; gap: 1rem; padding: 1.5rem 0;
     }
-    .text-post-left {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .post-label {
-      font-size: 0.65rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: #555;
-    }
+    .text-post-left { display: flex; flex-direction: column; gap: 0.5rem; }
+    .post-label { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: #555; }
     .post-link {
-      font-size: 1.05rem;
-      font-weight: 400;
-      color: #D4AF37;
-      text-decoration: none;
-      letter-spacing: 0.05em;
-      transition: opacity 0.2s;
+      font-size: 1.05rem; font-weight: 400; color: #D4AF37;
+      text-decoration: none; letter-spacing: 0.05em; transition: opacity 0.2s;
     }
     .post-link:hover { opacity: 0.7; }
 
-    /* ── Shared meta row ── */
-    .meta {
-      display: flex; justify-content: space-between;
-      align-items: baseline; gap: 1rem;
-    }
+    /* ── Meta row ── */
+    .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
     .caption { font-size: 1.05rem; font-weight: 400; color: #ddd; line-height: 1.6; }
     .date { font-size: 0.8rem; color: #555; white-space: nowrap; letter-spacing: 0.05em; }
 
-    /* ── Vertical gold divider between every post ── */
-    .divider {
-      display: flex; justify-content: center; align-items: center;
-      padding: 2.5rem 0; width: 100%;
-    }
+    /* ── Vertical gold divider ── */
+    .divider { display: flex; justify-content: center; align-items: center; padding: 2.5rem 0; width: 100%; }
     .divider-line {
       width: 1px; height: 192px;
       background: linear-gradient(
-        to bottom,
-        transparent 0%, #C9A84C 18%, #D4AF37 50%, #C9A84C 82%, transparent 100%
+        to bottom, transparent 0%, #C9A84C 18%, #D4AF37 50%, #C9A84C 82%, transparent 100%
       );
     }
   </style>
@@ -158,11 +149,21 @@
     <a href="projects.html">Projects</a>
   </nav>
 
-  <header><h1>SinisterNL</h1></header>
+  <header>
+    <!-- Instagram logo -->
+    <a href="https://www.instagram.com/sinisternl/" target="_blank" rel="noopener" class="instagram-link" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <circle cx="12" cy="12" r="4.5"/>
+        <circle cx="17.5" cy="6.5" r="0.5" fill="#D4AF37" stroke="none"/>
+      </svg>
+    </a>
+    <h1>SinisterNL</h1>
+  </header>
 
   <main>
 
-    <!-- POST 1 — Boodschappen update (text post, newest) -->
+    <!-- POST 1 — Boodschappen update -->
     <article id="post-1">
       <div class="text-post">
         <div class="text-post-left">
@@ -218,7 +219,6 @@
   </main>
 
   <script>
-    // ── Nav toggle ──
     const menuBtn = document.getElementById('menuBtn');
     const navPanel = document.getElementById('navPanel');
     const overlay  = document.getElementById('overlay');
@@ -230,7 +230,6 @@
     menuBtn.addEventListener('click', toggleMenu);
     overlay.addEventListener('click', toggleMenu);
 
-    // ── Scroll snap on every vertical divider ──
     const cooldown = new Set();
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -243,7 +242,6 @@
         }
       });
     }, { threshold: 1.0 });
-
     document.querySelectorAll('.divider-line').forEach(l => observer.observe(l));
   </script>
 </body>
