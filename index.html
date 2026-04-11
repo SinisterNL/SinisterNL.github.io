@@ -136,9 +136,24 @@
         to bottom, transparent 0%, #C9A84C 18%, #D4AF37 50%, #C9A84C 82%, transparent 100%
       );
     }
+
+    /* ── Photo hover background ── */
+    #photo-bg {
+      position: fixed; inset: 0;
+      background-size: 200%; background-position: center; background-repeat: no-repeat;
+      opacity: 0; pointer-events: none;
+      z-index: 1;
+      transition: opacity 0.4s ease;
+    }
+    #photo-bg.active { opacity: 0.5; }
+
+    header { position: relative; z-index: 2; }
+    main   { position: relative; z-index: 2; }
   </style>
 </head>
 <body>
+
+  <div id="photo-bg"></div>
 
   <button class="hamburger" id="menuBtn" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -243,6 +258,18 @@
       });
     }, { threshold: 1.0 });
     document.querySelectorAll('.divider-line').forEach(l => observer.observe(l));
+
+    // Photo hover background effect
+    const photoBg = document.getElementById('photo-bg');
+    document.querySelectorAll('article img').forEach(img => {
+      img.addEventListener('mouseenter', () => {
+        photoBg.style.backgroundImage = `url('${img.src}')`;
+        photoBg.classList.add('active');
+      });
+      img.addEventListener('mouseleave', () => {
+        photoBg.classList.remove('active');
+      });
+    });
   </script>
 </body>
 </html>
