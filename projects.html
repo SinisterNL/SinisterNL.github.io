@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects — SinisterNL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda+SC:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #111;
+      color: #eee;
+      font-family: 'Bodoni Moda SC', Georgia, serif;
+    }
+
+    /* ── Hamburger button ── */
+    .hamburger {
+      position: fixed;
+      top: 1.4rem;
+      left: 1.4rem;
+      z-index: 1001;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 6px;
+      background: none;
+      border: none;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 1px;
+      background: #D4AF37;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── Slide-out nav ── */
+    .nav-panel {
+      position: fixed;
+      top: 0; left: 0;
+      height: 100%;
+      width: 220px;
+      background: #0d0d0d;
+      border-right: 1px solid #1e1e1e;
+      transform: translateX(-100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      padding: 5rem 2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.2rem;
+    }
+    .nav-panel.open { transform: translateX(0); }
+
+    .nav-panel a {
+      color: #D4AF37;
+      text-decoration: none;
+      font-size: 1rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      transition: opacity 0.2s;
+    }
+    .nav-panel a:hover { opacity: 0.6; }
+
+    /* ── Overlay ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s;
+    }
+    .overlay.open { opacity: 1; pointer-events: all; }
+
+    /* ── Header ── */
+    header {
+      padding: 4rem 2rem 2.5rem;
+      text-align: center;
+      border-bottom: 1px solid #222;
+    }
+    header h1 {
+      font-size: 4.5rem;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #ccc;
+    }
+    header p.subtitle {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #444;
+    }
+
+    /* ── Content ── */
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    /* ── Project card ── */
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .project-title {
+      font-size: 1.8rem;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #D4AF37;
+      border-bottom: 1px solid #1e1e1e;
+      padding-bottom: 1rem;
+    }
+
+    /* ── Gold divider ── */
+    .divider {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem 0;
+      width: 100%;
+    }
+    .divider-line {
+      width: 1px;
+      height: 192px;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        #C9A84C 18%,
+        #D4AF37 50%,
+        #C9A84C 82%,
+        transparent 100%
+      );
+    }
+
+    /* ── Boodschappen list ── */
+    .boodschappen-updated {
+      font-size: 0.75rem;
+      color: #444;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .boodschappen-content {
+      font-size: 1rem;
+      color: #ccc;
+      line-height: 2;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="hamburger" id="menuBtn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="overlay" id="overlay"></div>
+
+  <nav class="nav-panel" id="navPanel">
+    <a href="index.html">Home</a>
+    <a href="projects.html">Projects</a>
+  </nav>
+
+  <header>
+    <h1>Projects</h1>
+    <p class="subtitle">SinisterNL</p>
+  </header>
+
+  <main>
+    <div class="project-card">
+      <h2 class="project-title">Boodschappen</h2>
+      <p class="boodschappen-updated" id="lastUpdated">Last updated: —</p>
+      <div class="boodschappen-content" id="boodschappenContent">
+        <!-- Content will be filled in -->
+        Content coming soon.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ── Nav toggle ──
+    const menuBtn = document.getElementById('menuBtn');
+    const navPanel = document.getElementById('navPanel');
+    const overlay  = document.getElementById('overlay');
+
+    function toggleMenu() {
+      const open = navPanel.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+      overlay.classList.toggle('open', open);
+    }
+    menuBtn.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+  </script>
+</body>
+</html>
