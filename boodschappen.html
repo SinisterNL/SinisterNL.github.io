@@ -108,8 +108,32 @@ canvas{max-height:480px}
 .tl-item{display:flex;align-items:center;gap:4px;color:var(--txt-sub)}
 .tl-dot{width:10px;height:10px;border-radius:50%}
 </style>
-</head>
-<body>
+<style>
+.hamburger{position:fixed;top:1.4rem;left:1.4rem;z-index:9001;cursor:pointer;display:flex;flex-direction:column;gap:6px;padding:6px;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:1px;background:#D4AF37;transition:transform .3s ease,opacity .3s ease;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.nav-panel{position:fixed;top:0;left:0;height:100%;width:220px;background:#0d0d0d;border-right:1px solid #1e1e1e;transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:9000;padding:5rem 2rem 2rem;display:flex;flex-direction:column;gap:2.2rem;font-family:'Bodoni Moda SC',Georgia,serif;}
+.nav-panel.open{transform:translateX(0);}
+.nav-panel a{color:#D4AF37;text-decoration:none;font-size:1rem;letter-spacing:.25em;text-transform:uppercase;transition:opacity .2s;}
+.nav-panel a:hover{opacity:.6;}
+.nav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8999;opacity:0;pointer-events:none;transition:opacity .35s;}
+.nav-overlay.open{opacity:1;pointer-events:all;}
+</style></head>
+<body><button class='hamburger' id='menuBtn' aria-label='Menu'><span></span><span></span><span></span></button>
+<div class='nav-overlay' id='navOverlay'></div>
+<nav class='nav-panel' id='navPanel'>
+  <a href='index.html'>Home</a>
+  <a href='projects.html'>Projects</a>
+</nav>
+<script>
+(function(){
+  var btn=document.getElementById('menuBtn'),panel=document.getElementById('navPanel'),ov=document.getElementById('navOverlay');
+  function toggle(){var o=panel.classList.toggle('open');btn.classList.toggle('open',o);ov.classList.toggle('open',o);}
+  btn.addEventListener('click',toggle);ov.addEventListener('click',toggle);
+})();
+</script>
 <header>
   <div>
     <h1>📊 Boodschappen Prijsgrafiek — Curaçao</h1>
