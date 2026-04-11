@@ -137,6 +137,19 @@
       );
     }
 
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      header { padding: 2rem 1.2rem 1.6rem; gap: 0.7rem; }
+      header h1 { font-size: 2.6rem; letter-spacing: 0.2em; }
+      main { padding: 2.5rem 1rem 4rem; }
+      .text-post { flex-wrap: wrap; }
+      .text-post .date { width: 100%; text-align: left; }
+      .divider { padding: 1.8rem 0; }
+      .divider-line { height: 120px; }
+      .meta { flex-wrap: wrap; gap: 0.4rem; }
+      .meta .date { width: 100%; }
+    }
+
     /* ── Photo hover background ── */
     #photo-bg {
       position: fixed; inset: 0;
@@ -259,17 +272,19 @@
     }, { threshold: 1.0 });
     document.querySelectorAll('.divider-line').forEach(l => observer.observe(l));
 
-    // Photo hover background effect
-    const photoBg = document.getElementById('photo-bg');
-    document.querySelectorAll('article img').forEach(img => {
-      img.addEventListener('mouseenter', () => {
-        photoBg.style.backgroundImage = `url('${img.src}')`;
-        photoBg.classList.add('active');
+    // Photo hover background effect (pointer devices only)
+    if (window.matchMedia('(hover: hover)').matches) {
+      const photoBg = document.getElementById('photo-bg');
+      document.querySelectorAll('article img').forEach(img => {
+        img.addEventListener('mouseenter', () => {
+          photoBg.style.backgroundImage = `url('${img.src}')`;
+          photoBg.classList.add('active');
+        });
+        img.addEventListener('mouseleave', () => {
+          photoBg.classList.remove('active');
+        });
       });
-      img.addEventListener('mouseleave', () => {
-        photoBg.classList.remove('active');
-      });
-    });
+    }
   </script>
 </body>
 </html>
