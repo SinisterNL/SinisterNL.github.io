@@ -81,8 +81,7 @@
       background: #0e0e0e;
     }
     .update-notice a {
-      color: #D4AF37;
-      text-decoration: none;
+      color: #D4AF37; text-decoration: none;
       border-bottom: 1px solid #3a2e10;
       transition: border-color 0.2s;
     }
@@ -96,9 +95,26 @@
     }
 
     article {
-      width: 100%; display: flex; flex-direction: column; gap: 1rem;
+      width: 100%; display: flex; flex-direction: column; gap: 0;
     }
+
     article img { width: 100%; display: block; border-radius: 2px; }
+
+    /* ── Horizontal gold line between photo and caption ── */
+    .photo-rule {
+      width: 100%;
+      height: 1px;
+      margin: 1rem 0;
+      background: linear-gradient(
+        to right,
+        transparent 0%,
+        #C9A84C 15%,
+        #D4AF37 50%,
+        #C9A84C 85%,
+        transparent 100%
+      );
+    }
+
     .meta {
       display: flex; justify-content: space-between;
       align-items: baseline; gap: 1rem;
@@ -106,7 +122,7 @@
     .caption { font-size: 1.05rem; font-weight: 400; color: #ddd; line-height: 1.6; }
     .date { font-size: 0.8rem; color: #555; white-space: nowrap; letter-spacing: 0.05em; }
 
-    /* ── Gold divider ── */
+    /* ── Vertical gold divider between articles ── */
     .divider {
       display: flex; justify-content: center; align-items: center;
       padding: 2.5rem 0; width: 100%;
@@ -134,12 +150,13 @@
   <header><h1>SinisterNL</h1></header>
 
   <div class="update-notice">
-    <a href="projects.html#boodschappen">Project Boodschappen updated on 11 Apr 2026</a>
+    <a href="projects.html">Project Boodschappen updated on 11 Apr 2026</a>
   </div>
 
   <main>
     <article id="photo-1">
       <img src="images/beach.jpg" alt="Playa Forti">
+      <div class="photo-rule"></div>
       <div class="meta">
         <p class="caption">A day at Playa Forti.</p>
         <span class="date">3 Apr 2026</span>
@@ -152,6 +169,7 @@
 
     <article id="photo-2">
       <img src="images/coastline.jpg" alt="Dark clouds over the coastline">
+      <div class="photo-rule"></div>
       <div class="meta">
         <p class="caption">Facing the dark clouds.</p>
         <span class="date">30 Mar 2026</span>
@@ -164,6 +182,7 @@
 
     <article id="photo-3">
       <img src="images/food.jpg" alt="Lunch">
+      <div class="photo-rule"></div>
       <div class="meta">
         <p class="caption">Lunch.</p>
         <span class="date">20 Nov 2024</span>
@@ -184,7 +203,7 @@
     menuBtn.addEventListener('click', toggleMenu);
     overlay.addEventListener('click', toggleMenu);
 
-    // ── Scroll snap on gold divider ──
+    // ── Scroll snap on vertical gold divider ──
     const cooldown = new Set();
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
