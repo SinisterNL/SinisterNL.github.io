@@ -398,6 +398,23 @@
       text-transform: uppercase;
     }
 
+    /* ── PHOTO HOVER BACKGROUND ── */
+    #photo-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+
+    #photo-bg.active {
+      opacity: 0.5;
+    }
+
     /* ── REVEAL ANIMATION ── */
     .reveal {
       opacity: 0;
@@ -421,6 +438,9 @@
   </style>
 </head>
 <body>
+
+  <!-- PHOTO HOVER BACKGROUND -->
+  <div id="photo-bg"></div>
 
   <!-- NAV -->
   <nav>
@@ -564,6 +584,20 @@
   </footer>
 
   <script>
+    // Photo hover background
+    const photoBg = document.getElementById('photo-bg');
+    document.querySelectorAll('.photo-item').forEach(item => {
+      const img = item.querySelector('img');
+      if (!img) return;
+      item.addEventListener('mouseenter', () => {
+        photoBg.style.backgroundImage = `url('${img.src}')`;
+        photoBg.classList.add('active');
+      });
+      item.addEventListener('mouseleave', () => {
+        photoBg.classList.remove('active');
+      });
+    });
+
     // Scroll reveal
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
