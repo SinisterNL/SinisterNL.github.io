@@ -56,6 +56,32 @@ The photo hover background effect is active: hovering any `.photo-item img`
 shows that image full-screen at 50% opacity. Grid photos stay at z-index: 1
 (foreground); `#photo-bg` sits at z-index: 0 (background).
 
+## Automated Photo Workflow
+Two ways to trigger this automatically (no manual HTML editing needed):
+
+### Option A — Drag & drop onto script (Windows, one-time setup)
+1. Open `C:\Sites\sinisternl\` in Explorer
+2. Drag any photo onto `scripts\add-photo.bat`
+3. Claude Code runs headlessly, updates the site, and pushes — done.
+
+Optional caption: `.\scripts\add-photo.ps1 "photo.jpg" "My caption here"`
+
+### Option B — File watcher (always-on)
+Run once in a terminal, then leave it running:
+```
+cd C:\Sites\sinisternl
+python scripts\watch.py
+```
+Drop any image into the `incoming/` folder — watcher detects it,
+moves it to `images/`, calls Claude, site is live in ~60 seconds.
+
+### Section detection logic (used by both options)
+Infer section from filename keywords:
+- `paint`, `mini`, `warhammer`, `model` → `#miniatures`
+- `beach`, `curacao`, `coast`, `food`, `island` → `#curacao`
+- `dnd`, `dungeon`, `dragon` → `#dnd`
+- Default / unclear → ask or use `#miniatures`
+
 ## Sections in index.html
 - `#hero` — full-screen beach photo header
 - `#curacao` — island life photos (beach.jpg, coastline.jpg, food.jpg)
