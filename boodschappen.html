@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boodschappen Prijsgrafiek — Curaçao</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,200;1,9..144,700&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:    #07101c;
+  --deep:   #0d1e30;
+  --layer:  #162a40;
+  --terra:  #c8733a;
+  --terra2: #e08d50;
+  --teal:   #17b8ac;
+  --cream:  #ede8de;
+  --fog:    #7d94ab;
+  --border: rgba(200,115,58,0.14);
+  --border-soft: rgba(200,115,58,0.07);
+}
+body{font-family:'Syne',sans-serif;background:var(--ink);color:var(--cream);min-height:100vh}
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");background-size:220px}
+
+header{background:rgba(7,16,28,.94);backdrop-filter:blur(16px);padding:1.1rem 3.5rem 1.1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+header h1{font-family:'Fraunces',serif;font-size:1.25rem;font-style:italic;font-weight:700;color:var(--terra);letter-spacing:.02em}
+header p{font-size:.68rem;color:var(--fog);margin-top:3px;letter-spacing:.03em}
+header .trend-hint{font-size:.65rem;color:var(--fog);text-align:right;line-height:1.8}
+
+.tabs{display:flex;gap:0;padding:0 3.5rem;background:var(--ink);overflow-x:auto;border-bottom:1px solid var(--border)}
+.tab{padding:.72rem 1.3rem;border:none;border-bottom:2px solid transparent;background:transparent;cursor:pointer;font-family:'Syne',sans-serif;font-size:.68rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--fog);transition:color .2s;white-space:nowrap;position:relative;top:1px}
+.tab:hover{color:var(--cream)}
+.tab.active{color:var(--terra);border-bottom-color:var(--terra)}
+
+.panel{display:none;padding:2rem 3.5rem 3rem}
+.panel.active{display:block}
+.card{background:var(--deep);border-radius:3px;padding:1.6rem 1.6rem 1.2rem;border:1px solid var(--border);margin-bottom:1rem}
+.card.goisco{border-color:rgba(23,184,172,.15)}
+.card.centrum{border-color:rgba(200,115,58,.15)}
+.card.vergelijk{border-color:rgba(200,115,58,.1)}
+.card h2{font-family:'Fraunces',serif;font-size:1.2rem;font-style:italic;font-weight:300;color:var(--cream);margin-bottom:.2rem;letter-spacing:-.01em}
+.card p.sub{font-size:.7rem;color:var(--fog);margin-bottom:1rem;letter-spacing:.03em}
+
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:300px}
+.search-wrap input{width:100%;background:var(--layer);border:1px solid rgba(200,115,58,.2);border-radius:2px;color:var(--cream);padding:6px 12px 6px 32px;font-family:'Syne',sans-serif;font-size:.76rem;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:var(--terra)}
+.search-wrap input::placeholder{color:var(--fog)}
+.search-wrap::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.7rem;pointer-events:none}
+.cat-filters{display:flex;flex-wrap:wrap;gap:4px}
+.cf{padding:3px 9px;border-radius:2px;border:1px solid rgba(23,184,172,.2);background:transparent;color:var(--fog);font-family:'Syne',sans-serif;font-size:.66rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.cf:hover{border-color:var(--teal);color:var(--teal)}
+.cf.on{background:rgba(23,184,172,.12);color:var(--teal);border-color:rgba(23,184,172,.35)}
+.filter-btn{padding:3px 10px;border-radius:2px;border:1px solid rgba(200,115,58,.2);background:transparent;color:var(--fog);font-family:'Syne',sans-serif;font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.filter-btn:hover{border-color:var(--terra);color:var(--terra2)}
+.filter-btn.on{background:var(--terra);color:var(--ink);border-color:var(--terra)}
+canvas{max-height:480px}
+
+.legend-grid{display:flex;flex-wrap:wrap;gap:3px;margin-top:12px;max-height:150px;overflow-y:auto}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:.66rem;color:var(--fog);cursor:pointer;padding:3px 7px;border-radius:2px;border:1px solid transparent;transition:all .15s;white-space:nowrap}
+.legend-item:hover{background:var(--layer);border-color:var(--border);color:var(--cream)}
+.legend-item.hidden{opacity:.3;text-decoration:line-through}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.line-sw{width:14px;height:2.5px;border-radius:2px;flex-shrink:0}
+.legend-item .trend{font-size:.62rem;margin-left:1px}
+
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:700px){.dash-grid{grid-template-columns:1fr}}
+.stat-card{background:var(--layer);border-radius:3px;padding:1rem;border:1px solid var(--border-soft)}
+.stat-card h3{font-family:'Fraunces',serif;font-size:.85rem;font-style:italic;font-weight:300;color:var(--cream);margin-bottom:.7rem}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border-soft);font-size:.72rem}
+.stat-row:last-child{border-bottom:none}
+.stat-row .label{color:var(--fog);flex:1}
+.stat-row .val{color:var(--cream);font-weight:600;margin-left:8px}
+.stat-row .badge{padding:2px 7px;border-radius:2px;font-size:.64rem;font-weight:700;margin-left:6px}
+.badge-red{background:rgba(200,50,50,.2);color:#f08080}
+.badge-green{background:rgba(23,184,172,.15);color:var(--teal)}
+.badge-orange{background:rgba(200,115,58,.2);color:var(--terra2)}
+.badge-blue{background:rgba(100,140,200,.15);color:#8ab4d4}
+
+.comp-group{margin-bottom:1.4rem}
+.comp-group h3{font-family:'Fraunces',serif;font-size:.9rem;font-style:italic;font-weight:300;color:var(--cream);margin-bottom:8px}
+.comp-bar-wrap{display:flex;flex-direction:column;gap:5px}
+.comp-bar-row{display:flex;align-items:center;gap:8px;font-size:.72rem}
+.comp-bar-row .lbl{width:220px;color:var(--fog);text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comp-bar-outer{flex:1;background:var(--layer);border-radius:2px;height:18px;position:relative}
+.comp-bar-inner{height:100%;border-radius:2px;transition:width .5s ease;display:flex;align-items:center;padding-left:6px}
+.comp-bar-inner span{font-size:.65rem;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.comp-cheapest{border:1.5px solid var(--teal)}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:var(--layer);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--fog)}
+.trend-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:.7rem}
+.tl-item{display:flex;align-items:center;gap:4px;color:var(--fog)}
+.tl-dot{width:10px;height:10px;border-radius:50%}
+
+.hamburger{position:fixed;top:1rem;right:1.4rem;z-index:9001;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:6px;background:none;border:none}
+.hamburger span{display:block;width:20px;height:1px;background:var(--terra);transition:transform .3s ease,opacity .3s ease}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.nav-panel{position:fixed;top:0;left:0;height:100%;width:220px;background:var(--ink);border-right:1px solid var(--border);transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:9000;padding:5rem 2.5rem 2rem;display:flex;flex-direction:column;gap:2rem}
+.nav-panel.open{transform:translateX(0)}
+.nav-panel a{font-family:'Fraunces',serif;font-size:1.1rem;font-style:italic;font-weight:300;color:var(--cream);text-decoration:none;letter-spacing:.02em;transition:color .2s}
+.nav-panel a:hover{color:var(--terra)}
+.nav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:8999;opacity:0;pointer-events:none;transition:opacity .35s}
+.nav-overlay.open{opacity:1;pointer-events:all}
+
+@media(max-width:768px){
+  header{padding:.8rem 1.2rem;flex-direction:column;align-items:flex-start;gap:4px}
+  header h1{font-size:1rem}
+  header p{font-size:.65rem}
+  header .trend-hint{font-size:.62rem;display:flex;flex-wrap:wrap;gap:4px 10px}
+  .tabs{padding:0 1rem}
+  .tab{padding:.6rem .9rem;font-size:.63rem}
+  .panel{padding:1rem 1rem 2rem}
+  .card{padding:.9rem}
+  .card h2{font-size:1rem}
+  canvas{max-height:220px}
+  .comp-bar-row{font-size:.65rem}
+  .comp-bar-row .lbl{width:90px;font-size:.62rem}
+  .legend-grid{max-height:110px}
+  .controls{gap:6px}
+  .search-wrap{min-width:130px}
+  .stat-card{padding:.8rem}
+  .stat-row{font-size:.7rem}
+}
+</style></head>
+<body><button class='hamburger' id='menuBtn' aria-label='Menu'><span></span><span></span><span></span></button>
+<div class='nav-overlay' id='navOverlay'></div>
+<nav class='nav-panel' id='navPanel'>
+  <a href='index.html'>Home</a>
+  <a href='projects.html'>Projects</a>
+</nav>
+<script>
+(function(){
+  var btn=document.getElementById('menuBtn'),panel=document.getElementById('navPanel'),ov=document.getElementById('navOverlay');
+  function toggle(){var o=panel.classList.toggle('open');btn.classList.toggle('open',o);ov.classList.toggle('open',o);}
+  btn.addEventListener('click',toggle);ov.addEventListener('click',toggle);
+})();
+</script>
+<header>
+  <div>
+    <h1>Boodschappen Prijsgrafiek — Curaçao</h1>
+    <p>Hover = details + prijstrend &nbsp;·&nbsp; Klik legenda = toon/verberg &nbsp;·&nbsp; Zoek + categoriefilter</p>
+  </div>
+  <div class="trend-hint">
+    <div>🔴 stijging &gt;20%</div>
+    <div>🟠 stijging 5–20%</div>
+    <div>🟢 daling</div>
+    <div>🔵 stabiel</div>
+    <div>⚫ éénmalig</div>
+  </div>
+</header>
+<div class="tabs">
+  <button class="tab dashboard active"     onclick="switchTab('dashboard')">📋 Dashboard</button>
+  <button class="tab mangusa"         onclick="switchTab('mangusa')">🏪 Mangusa (7×)</button>
+  <button class="tab goisco"          onclick="switchTab('goisco')">🏬 Goisco (4×)</button>
+  <button class="tab centrum"         onclick="switchTab('centrum')">🛒 Centrum (2×)</button>
+  <button class="tab vergelijk"       onclick="switchTab('vergelijk')">⚖️ Vergelijk</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="panel-dashboard" class="panel active">
+  <div class="card">
+    <h2>📋 Dashboard — Overzicht</h2>
+    <p class="sub">Uitgaven per bezoek · Top prijsstijgingen · Statistieken</p>
+    <canvas id="chart-spending" style="max-height:220px;margin-bottom:16px"></canvas>
+    <div class="dash-grid">
+      <div class="stat-card">
+        <h3>🔥 Top 5 Grootste Prijsstijgingen</h3>
+        <div id="top-increases"></div>
+      </div>
+      <div class="stat-card">
+        <h3>💰 Goedkoopste per kg/L (recurring)</h3>
+        <div id="cheapest-per-unit"></div>
+      </div>
+      <div class="stat-card">
+        <h3>📦 Producten per winkel</h3>
+        <div id="store-stats"></div>
+      </div>
+      <div class="stat-card">
+        <h3>📅 Bezoeken & gemiddeld bonbedrag</h3>
+        <div id="visit-stats"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MANGUSA -->
+<div id="panel-mangusa" class="panel">
+  <div class="card" style="margin-top:4px">
+    <h2>🏪 Mangusa Hypermarket — Prijsverloop per product</h2>
+    <p class="sub">Doorgetrokken = terugkerend · Gestippeld = éénmalig · Kleur = prijstrend · Hover voor details</p>
+    <div class="controls">
+      <div class="search-wrap"><input id="search-mangusa" placeholder="Zoek product..." oninput="onSearch('mangusa',this.value)"></div>
+      <button class="filter-btn on" onclick="filterStore('mangusa','all',this)">Alle</button>
+      <button class="filter-btn" onclick="filterStore('mangusa','recurring',this)">★ Trendlijnen</button>
+    </div>
+    <div class="cat-filters" id="cf-mangusa"></div>
+    <br>
+    <canvas id="chart-mangusa"></canvas>
+    <div class="legend-grid" id="legend-mangusa"></div>
+  </div>
+</div>
+
+<!-- GOISCO -->
+<div id="panel-goisco" class="panel">
+  <div class="card goisco" style="margin-top:4px">
+    <h2>🏬 Goisco Wholesale Club — Prijsverloop per product</h2>
+    <p class="sub">3 bonnen: 30-03, 01-04 (1), 01-04 (2) · Kleur = prijstrend · Hover voor details</p>
+    <div class="controls">
+      <div class="search-wrap"><input id="search-goisco" placeholder="Zoek product..." oninput="onSearch('goisco',this.value)"></div>
+      <button class="filter-btn on" onclick="filterStore('goisco','all',this)">Alle</button>
+      <button class="filter-btn" onclick="filterStore('goisco','recurring',this)">★ Trendlijnen</button>
+    </div>
+    <div class="cat-filters" id="cf-goisco"></div>
+    <br>
+    <canvas id="chart-goisco"></canvas>
+    <div class="legend-grid" id="legend-goisco"></div>
+  </div>
+</div>
+
+<!-- CENTRUM -->
+<div id="panel-centrum" class="panel">
+  <div class="card centrum" style="margin-top:4px">
+    <h2>🛒 Centrum Supermarket Mahaai — Prijsverloop per product</h2>
+    <p class="sub">2 bezoeken: 02-04 & 07-04 · Kleur = prijstrend · Hover voor details</p>
+    <div class="controls">
+      <div class="search-wrap"><input id="search-centrum" placeholder="Zoek product..." oninput="onSearch('centrum',this.value)"></div>
+      <button class="filter-btn on" onclick="filterStore('centrum','all',this)">Alle</button>
+      <button class="filter-btn" onclick="filterStore('centrum','recurring',this)">★ Trendlijnen</button>
+    </div>
+    <div class="cat-filters" id="cf-centrum"></div>
+    <br>
+    <canvas id="chart-centrum"></canvas>
+    <div class="legend-grid" id="legend-centrum"></div>
+  </div>
+</div>
+
+<!-- VERGELIJK -->
+<div id="panel-vergelijk" class="panel">
+  <div class="card vergelijk" style="margin-top:4px">
+    <h2>⚖️ Winkelvergelijking — Zelfde product, andere winkel</h2>
+    <p class="sub">Horizontale balken per product · 🟢 groen omlijnd = goedkoopste optie</p>
+    <div id="comparisons-container"></div>
+  </div>
+</div>
+
+<script>
+const RAW={"mangusa": {"Afval 5pc | 1.59/stk": {"21-03-2026": 7.95}, "Yoghurt Natfarm 0.946L | 7.03/L": {"10-03-2026": 6.65, "21-03-2026": 6.65}, "Badia Ranch Sauce": {"21-03-2026": 8.95}, "Arla Milk Halfvet (1) | 3.15/stuk": {"31-01-2026": 3.15, "21-03-2026": 3.15, "09-04-2026": 3.15}, "Arla Milk Halfvet (2) | 3.15/stuk": {"31-01-2026": 3.15, "21-03-2026": 3.15}, "Boni Sambal Oelek 200ml | 22/L": {"21-03-2026": 4.4}, "Jumbo Tomatenblokjes": {"21-03-2026": 2.75}, "Worst Salu Special kl": {"13-02-2026": 6.09, "21-03-2026": 5.55}, "Siboyo Hulandes | 3.50/kg": {"31-01-2026": 5.02, "21-03-2026": 2.24}, "Bakoba kl | 3.50/kg": {"31-01-2026": 3.2, "13-02-2026": 3.5, "21-03-2026": 10.7, "09-04-2026": 3.5}, "Mili Toalla Papel 600 | 4.45/stk": {"21-03-2026": 17.8}, "Smuldier Kip Kompleet 40 | 7.34/stuk": {"21-03-2026": 7.34}, "Karni Mula ch kl": {"21-03-2026": 10.8}, "Elite Color Hojas Dobles": {"21-03-2026": 10.8}, "Verlaagd Koolhydraatgehalte": {"21-03-2026": 5.16}, "★ Smuldier Rund Kip Compl4 | 4.45/stk": {"10-03-2026": 4.45, "09-04-2026": 4.45}, "Sodka Hard Seltzer Pineapple | 3.20/stk": {"13-02-2026": 3.2, "09-04-2026": 3.2}, "Sodka Hard Seltzer Grapefruit | 3.20/stk": {"13-02-2026": 3.2, "09-04-2026": 3.2}, "BBQ Loin Ribs kl": {"09-04-2026": 6.58}, "Chicken Cordon Bleu PR kl": {"31-01-2026": 4.3, "09-04-2026": 9.13}, "Rozijnen Bolletjes 5pc | 0.70/stuk": {"09-04-2026": 3.5}, "Keshi Roombrie kl": {"09-04-2026": 4.72}, "Royal Gelatin Strawberry | 2.85/stk": {"09-04-2026": 2.85}, "Karni Mula Spl 3lb=1.36kg ch kl | ±7.72→17.93/kg": {"31-01-2026": 10.5, "09-04-2026": 24.4}, "★ Smuldier Kip Kompleet 400 | 4.45/stk": {"10-03-2026": 4.45}, "Jumbo Volkoren Pap 500gr | 13.50/kg": {"10-03-2026": 6.75}, "Promenton Kora kl | 10.95/kg": {"31-01-2026": 6.95, "10-03-2026": 10.95}, "Pita Farm Webu 12pc | 0.53/stuk": {"10-03-2026": 6.36}, "Vloer 7 Zaden Hnt pc | 4.00/stuk": {"10-03-2026": 4.0}, "Spelt Natuur pc": {"13-02-2026": 5.85, "10-03-2026": 6.66}, "Lomito Binte 2 3 ch spl": {"10-03-2026": 30.85}, "Arm Hammer Adv Wn Toothp4 | 7.30/stk": {"10-03-2026": 7.3}, "Prodent Tooth Paste Wht F | 3.70/stk": {"10-03-2026": 3.7}, "Sun All in 1 Citroen Tab | 17.95/stk": {"13-02-2026": 17.95}, "Remia Mayonaise 1000ml | 11.10/L": {"13-02-2026": 11.1}, "Freshcan Doperwt Ext Fij | 4.30/stk": {"13-02-2026": 4.3}, "Sodka Hard Seltzer Lime | 3.20/stk": {"13-02-2026": 3.2}, "Remia Tomato Ketchup 800ml | 12.81/L": {"13-02-2026": 10.25}, "Toufayan Wh Wheat Pita Br | 3.50/stk": {"13-02-2026": 3.5}, "★ Douwe Egberts Espresso K | 12.05/stk": {"13-02-2026": 12.05}, "★ Douwe Egberts Lungo Dec | 12.05/stk": {"13-02-2026": 12.05}, "Remia Curry Saus 500ml | 11.80/L": {"13-02-2026": 5.9}, "Awakati kl | 6.95/kg": {"31-01-2026": 2.34, "13-02-2026": 6.95}, "Mulina Galina Chill kl": {"13-02-2026": 2.95}, "Drumstick ch kl": {"13-02-2026": 4.31}, "Back and Neck ch kl": {"13-02-2026": 2.8}, "★ Vida Olg Cit Spark Drink | 1.85/stk": {"31-01-2026": 1.85}, "Polar Sparkling Frost Orange | 2.50/stk": {"31-01-2026": 2.5}, "Libby's Sliced Pineapple in Juice | 3.85/stk": {"31-01-2026": 3.85}, "Timson Rinse Appelstr 450g | 7.95/stk": {"31-01-2026": 7.95}, "★ Vida Sakud Spark Drink Zero | 1.85/stk": {"31-01-2026": 1.85}, "★ Black Energy Drink 240ml | 1.85/stk": {"31-01-2026": 1.85}, "Fru Goudkuipje Ham 100gr | 2.35/stk": {"31-01-2026": 2.35}, "Placeilli Fusillini 500gr | 12.70/kg": {"31-01-2026": 6.35}, "Eggs 12pc (a) | 9.95/12-pak (0.83/stuk)": {"31-01-2026": 9.95}, "Eggs 12pc (b) | 9.95/12-pak (0.83/stuk)": {"31-01-2026": 9.95}, "Karni Mula Spl 5lb=2.27kg ch kl | 8.16/kg": {"04-04-2026": 18.51}, "Tsmart Trad Pasta Sauce24 | 4.85/stuk": {"04-04-2026": 4.85}, "Knorr Wg Indiase Kip Tand | 7.90/stuk": {"04-04-2026": 7.9}, "Pan Frances Chiki pc": {"04-04-2026": 1.95}, "Old Fashion Ham kl": {"04-04-2026": 3.72}, "Kalkoen [?] Hulandes kl": {"04-04-2026": 2.92}, "Koning Griekse Stijl | 10.80/stuk": {"04-04-2026": 10.8}, "Witte Bolletje 5pc | 0.49/stuk": {"11-04-2026": 2.45}, "Brasa Caribbean Gold Bee | 3.60/stuk": {"11-04-2026": 10.8}, "Dentyne Ice Artic Chill | 4.30/stuk": {"11-04-2026": 4.3}}, "goisco": {"Co Op Sliced Mixed Peppers | 5.18/stuk": {"30-03-2026": 5.18, "01-04-2026 (1)": 5.18}, "Co Op Sweetcorn 750gr | 9.12/kg": {"01-04-2026 (1)": 6.84}, "Arizona Diet Green Tea 12pk | 1.12/blik": {"30-03-2026": 13.49}, "AM Long Coconut Milk 13.5oz | 6.33/L": {"30-03-2026": 2.53}, "Vida Zero Minty Lime 330ml | 5.61/L": {"30-03-2026": 1.85, "10-04-2026": 1.85}, "Homedia Food Wrap 30mt": {"30-03-2026": 1.94}, "Blue Buffalo Dog Treat": {"30-03-2026": 29.49}, "Coop Cat Food Tasty Chunk": {"30-03-2026": 17.61}, "9Lives Hearty Cuts Chicken 4x5oz | 14.66/kg": {"30-03-2026": 8.31}, "9Lives Super Supper 4x5oz | 14.66/kg": {"30-03-2026": 8.31}, "9Lives Beef in Sauce 4x5oz | 14.66/kg": {"30-03-2026": 8.31}, "Goisco Black Beans 420gr | 4.86/kg": {"01-04-2026 (1)": 2.04}, "Goisco Red Beans 420gr | 5.57/kg": {"01-04-2026 (1)": 2.34}, "Goisco Peas & Carrots 420gr | 4.86/kg": {"01-04-2026 (1)": 2.04}, "Old El Paso Seasoning Mix": {"01-04-2026 (1)": 23.48}, "Bliss French Frites 9x9mm": {"01-04-2026 (1)": 9.78}, "Tyson Honey BBQ Wings": {"01-04-2026 (1)": 44.49}, "Frico Jonge Kaas 1/4 pak": {"01-04-2026 (1)": 19.92}, "Boneless Breast [Chill] | 4.57/stuk": {"01-04-2026 (1)": 4.57}, "BJ Rectangle Food Storage": {"01-04-2026 (1)": 22.5}, "Eggs Case | 7.95/stuk": {"01-04-2026 (1)": 7.95}, "Inproba Nasi Goreng Mix | 1.46/stuk": {"01-04-2026 (1)": 1.46}, "Monoughan Instant Cup Cheddar | 1.94/stuk": {"01-04-2026 (1)": 1.94}, "Hunts Tomatoes Paste 6oz | 52.78/kg": {"01-04-2026 (1)": 2.34}, "Hunts Diced Tomatoes 14.5oz | 10.89/kg": {"01-04-2026 (1)": 3.12}, "Goya Sliced Beets 15oz | 10.78/kg": {"01-04-2026 (1)": 4.59}, "Goya French Style Green Beans | 4.10/stuk": {"01-04-2026 (1)": 4.1}, "Douwe Egberts Lungo Sterk | 11.73/stuk": {"01-04-2026 (1)": 11.73}, "Douwe Egberts Espresso Rich | 11.73/stuk": {"01-04-2026 (1)": 11.73}, "Douwe Egberts Espresso Kraak | 11.73/stuk": {"01-04-2026 (1)": 11.73}, "String Cheese 12oz | 37.38/kg": {"01-04-2026 (1)": 12.71}, "Donuts": {"01-04-2026 (2)": 2.63}, "Dots Assorted": {"01-04-2026 (2)": 4.69}, "Bolthouse Super Smoothie S": {"01-04-2026 (2)": 9.29}, "Minute Maid Apple 12oz | 8.22/L": {"01-04-2026 (2)": 2.92}, "Atlantic Salmon Portions": {"10-04-2026": 16.15}, "Horeca Broccoli Florets 2": {"10-04-2026": 13.69}, "Odoban Disinfectant 1 Gal": {"10-04-2026": 32.29}, "Toufayan Spinach Wrap 11oz | 16.21/kg": {"10-04-2026": 5.04}, "Loinribs Barra": {"10-04-2026": 18.7}, "Sushi Combo 8pc (1) | 2.03/stuk": {"10-04-2026": 16.27}, "Sushi Combo 8pc (2) | 2.03/stuk": {"10-04-2026": 16.27}, "Maruchan Instant Cup Cheddar | 1.94/stuk": {"10-04-2026": 1.94}, "Soy Vay Veri Veri Teriyaki": {"10-04-2026": 20.54}, "GM Cinnamon Toast Crunch": {"10-04-2026": 25.44}, "Monster Ultra 16oz ×2 | 3.99/stuk (8.44/L)": {"10-04-2026": 7.42}, "Vida Zero Salty Lychee 330ml | 5.61/L": {"10-04-2026": 1.85}, "Starbucks Espresso and Cr | 5.18/stuk": {"10-04-2026": 5.18}, "Royal Club Soda Water 330 (24×) | 1.14/stuk": {"10-04-2026": 27.39}, "Co Op Cat Crunchy Pockets | 2.53/stuk": {"10-04-2026": 2.53}, "A&H Multi Cat Litter": {"10-04-2026": 42.08}, "A&H Double Duty Cat Litter": {"10-04-2026": 42.08}}, "centrum": {"Amstel Beer Can 6x | 2.80/blik": {"02-04-2026": 16.8}, "Natuurfarm Yoghurt 1.5 PR": {"02-04-2026": 6.61}, "Leffe Tripple FL 300ml | 19.83/L": {"02-04-2026": 5.95}, "Coca Cola Zero 1lt | 4.65/L": {"02-04-2026": 4.65}, "Banaan Bakoba | 2.85/kg": {"02-04-2026": 2.85}, "Runder Gehakt Karni Mula | per kg": {"02-04-2026": 6.0}, "Jumbo Borrelnoten BBQ PAP": {"02-04-2026": 4.95}, "[naam niet leesbaar]": {"02-04-2026": 3.85}, "Boneless Chicken Thighs kg (1)": {"07-04-2026": 4.93}, "Boneless Chicken Thighs kg (2)": {"07-04-2026": 4.99}, "Kipfilet French Garden kg": {"07-04-2026": 9.03}, "Boneless Chicken Thighs kg (3)": {"07-04-2026": 4.29}, "BBQ Worst Niet Geweld kg": {"07-04-2026": 10.25}, "Eggs Farm Moderno 12pc | 0.58/stuk": {"07-04-2026": 6.95}, "Melkan Griekse Stijl 10 PR | 9.36/10-pak": {"07-04-2026": 9.36}, "Melkan Demi Crème Fraîche | 2.88/stuk": {"07-04-2026": 2.88}, "Avocado Sto Domingo kg": {"07-04-2026": 2.78}, "Karni Mula 2lb up kg | ≥0.907kg (≤15.16/kg)": {"07-04-2026": 13.75}, "Gegrookte Carbonade | per kg": {"07-04-2026": 4.1}}};
+const CATS={"Afval 5pc | 1.59/stuk": "🥩 Vlees", "Yoghurt Natfarm 0.946L | 7.03/L": "🥛 Zuivel", "Badia Ranch Sauce": "🍝 Droogwaren", "Arla Milk Halfvet (1) | 3.15/stuk": "🥛 Zuivel", "Arla Milk Halfvet (2) | 3.15/stuk": "🥛 Zuivel", "Boni Sambal Oelek 200ml | 22/L": "🍝 Droogwaren", "Jumbo Tomatenblokjes": "🥦 Groenten", "Worst Salu Special kl": "🥩 Vlees", "Siboyo Hulandes | 3.50/kg": "🥦 Groenten", "Bakoba kl | 3.50/kg": "🥦 Groenten", "Mili Toalla Papel 600 | 4.45/stuk": "🧴 Hygiëne & Huis", "Smuldier Kip Kompleet 40 | 7.34/stuk": "🍗 Kip", "Karni Mula ch kl": "🥩 Vlees", "Elite Color Hojas Dobles": "🧴 Hygiëne & Huis", "Verlaagd Koolhydraatgehalte": "🍞 Bakkerij", "★ Smuldier Rund Kip Compl4 | 4.45/stuk": "🍗 Kip", "Sodka Hard Seltzer Pineapple | 3.20/stuk": "🥤 Drank", "Sodka Hard Seltzer Grapefruit | 3.20/stuk": "🥤 Drank", "BBQ Loin Ribs kl": "🥩 Vlees", "Chicken Cordon Bleu PR kl": "🍗 Kip", "Rozijnen Bolletjes 5pc | 0.70/stuk": "🍞 Bakkerij", "Keshi Roombrie kl": "🥛 Zuivel", "Royal Gelatin Strawberry | 2.85/stuk": "🍝 Droogwaren", "Karni Mula Spl 3lb=1.36kg ch kl | ±7.72→17.93/kg": "🥩 Vlees", "★ Smuldier Kip Kompleet 400 | 4.45/stuk": "🍗 Kip", "Jumbo Volkoren Pap 500gr | 13.50/kg": "🍝 Droogwaren", "Promenton Kora kl | 10.95/kg": "🥩 Vlees", "Pita Farm Webu 12pc | 0.53/stuk": "🍞 Bakkerij", "Vloer 7 Zaden Hnt pc | 4.00/stuk": "🍞 Bakkerij", "Spelt Natuur pc": "🍞 Bakkerij", "Lomito Binte 2 3 ch spl": "🥩 Vlees", "Arm Hammer Adv Wn Toothp4 | 7.30/stuk": "🧴 Hygiëne & Huis", "Prodent Tooth Paste Wht F | 3.70/stuk": "🧴 Hygiëne & Huis", "Sun All in 1 Citroen Tab | 17.95/stuk": "🧴 Hygiëne & Huis", "Remia Mayonaise 1000ml | 11.10/L": "🍝 Droogwaren", "Freshcan Doperwt Ext Fij | 4.30/stuk": "🥦 Groenten", "Sodka Hard Seltzer Lime | 3.20/stuk": "🥤 Drank", "Remia Tomato Ketchup 800ml | 12.81/L": "🍝 Droogwaren", "Toufayan Wh Wheat Pita Br | 3.50/stuk": "🍞 Bakkerij", "★ Douwe Egberts Espresso K | 12.05/stuk": "☕ Koffie", "★ Douwe Egberts Lungo Dec | 12.05/stuk": "☕ Koffie", "Remia Curry Saus 500ml | 11.80/L": "🍝 Droogwaren", "Awakati kl | 6.95/kg": "🥦 Groenten", "Mulina Galina Chill kl": "🍗 Kip", "Drumstick ch kl": "🍗 Kip", "Back and Neck ch kl": "🍗 Kip", "★ Vida Olg Cit Spark Drink | 1.85/stuk (7.71/L)": "🥤 Drank", "Polar Sparkling Frost Orange | 2.50/stuk": "🥤 Drank", "Libby's Sliced Pineapple in Juice | 3.85/stuk": "🥦 Groenten", "Timson Rinse Appelstr 450g | 7.95/stuk (17.67/kg)": "🧴 Hygiëne & Huis", "★ Vida Sakud Spark Drink Zero | 1.85/stuk": "🥤 Drank", "★ Black Energy Drink 240ml | 1.85/stuk (7.71/L)": "🥤 Drank", "Fru Goudkuipje Ham 100gr | 2.35/stuk (23.50/kg)": "🥩 Vlees", "Placeilli Fusillini 500gr | 12.70/kg": "🍝 Droogwaren", "Eggs 12pc (a) | 9.95/12-pak (0.83/stuk)": "🥛 Zuivel", "Eggs 12pc (b) | 9.95/12-pak (0.83/stuk)": "🥛 Zuivel", "Co Op Sliced Mixed Peppers | 5.18/stuk": "🥦 Groenten", "Co Op Sweetcorn 750gr | 9.12/kg": "🥦 Groenten", "Arizona Diet Green Tea 12pk | 1.12/blik": "🥤 Drank", "AM Long Coconut Milk 13.5oz | 6.33/L": "🥤 Drank", "Vida Zero Minty Lime 330ml | 5.61/L": "🥤 Drank", "Homedia Food Wrap 30mt": "🧴 Hygiëne & Huis", "Blue Buffalo Dog Treat": "🐾 Dier", "Coop Cat Food Tasty Chunk": "🐾 Dier", "9Lives Hearty Cuts Chicken 4x5oz | 14.66/kg": "🐾 Dier", "9Lives Super Supper 4x5oz | 14.66/kg": "🐾 Dier", "9Lives Beef in Sauce 4x5oz | 14.66/kg": "🐾 Dier", "Goisco Black Beans 420gr | 4.86/kg": "🍝 Droogwaren", "Goisco Red Beans 420gr | 5.57/kg": "🍝 Droogwaren", "Goisco Peas & Carrots 420gr | 4.86/kg": "🍝 Droogwaren", "Old El Paso Seasoning Mix": "🍝 Droogwaren", "Bliss French Frites 9x9mm": "🍝 Droogwaren", "Tyson Honey BBQ Wings": "🍗 Kip", "Frico Jonge Kaas 1/4 pak": "🥛 Zuivel", "Boneless Breast [Chill] | 4.57/stuk": "🍗 Kip", "BJ Rectangle Food Storage": "🧴 Hygiëne & Huis", "Eggs Case | 7.95/stuk": "🥛 Zuivel", "Inproba Nasi Goreng Mix | 1.46/stuk": "🍝 Droogwaren", "Monoughan Instant Cup Cheddar | 1.94/stuk": "🍝 Droogwaren", "Hunts Tomatoes Paste 6oz | 52.78/kg": "🍝 Droogwaren", "Hunts Diced Tomatoes 14.5oz | 10.89/kg": "🥦 Groenten", "Goya Sliced Beets 15oz | 10.78/kg": "🥦 Groenten", "Goya French Style Green Beans | 4.10/stuk": "🥦 Groenten", "Douwe Egberts Lungo Sterk | 11.73/stuk": "☕ Koffie", "Douwe Egberts Espresso Rich | 11.73/stuk": "☕ Koffie", "Douwe Egberts Espresso Kraak | 11.73/stuk": "☕ Koffie", "String Cheese 12oz | 37.38/kg": "🥛 Zuivel", "Donuts": "🍞 Bakkerij", "Dots Assorted": "🎉 Overig", "Bolthouse Super Smoothie S": "🥤 Drank", "Minute Maid Apple 12oz | 8.22/L": "🥤 Drank", "Amstel Beer Can 6x | 2.80/blik": "🥤 Drank", "Natuurfarm Yoghurt 1.5 PR": "🥛 Zuivel", "Leffe Tripple FL 300ml | 19.83/L": "🥤 Drank", "Coca Cola Zero 1lt | 4.65/L": "🥤 Drank", "Banaan Bakoba | 2.85/kg": "🥦 Groenten", "Runder Gehakt Karni Mula | per kg": "🥩 Vlees", "Jumbo Borrelnoten BBQ PAP": "🎉 Overig", "[naam niet leesbaar]": "🎉 Overig", "Boneless Chicken Thighs kg (1)": "🍗 Kip", "Boneless Chicken Thighs kg (2)": "🍗 Kip", "Kipfilet French Garden kg": "🍗 Kip", "Boneless Chicken Thighs kg (3)": "🍗 Kip", "BBQ Worst Niet Geweld kg": "🥩 Vlees", "Karni Mula 2lb up kg | ≥0.907kg (≤15.16/kg)": "🥩 Vlees", "Eggs Farm Moderno 12pc | 0.58/stuk": "🥛 Zuivel", "Melkan Griekse Stijl 10 PR | 9.36/10-pak": "🥛 Zuivel", "Melkan Demi Crème Fraîche | 2.88/stuk": "🥛 Zuivel", "Avocado Sto Domingo kg": "🥦 Groenten", "Melkan Demi Crème Fraîche (1) | 2.88/stuk": "🥛 Zuivel", "Melkan Demi Crème Fraîche (2) | 2.88/stuk": "🥛 Zuivel", "Afval 5pc | 1.59/stk": "🥩 Vlees", "Mili Toalla Papel 600 | 4.45/stk": "🧴 Hygiëne & Huis", "★ Smuldier Rund Kip Compl4 | 4.45/stk": "🍗 Kip", "Sodka Hard Seltzer Pineapple | 3.20/stk": "🥤 Drank", "Sodka Hard Seltzer Grapefruit | 3.20/stk": "🥤 Drank", "Royal Gelatin Strawberry | 2.85/stk": "🍝 Droogwaren", "★ Smuldier Kip Kompleet 400 | 4.45/stk": "🍗 Kip", "Arm Hammer Adv Wn Toothp4 | 7.30/stk": "🧴 Hygiëne & Huis", "Prodent Tooth Paste Wht F | 3.70/stk": "🧴 Hygiëne & Huis", "Sun All in 1 Citroen Tab | 17.95/stk": "🧴 Hygiëne & Huis", "Freshcan Doperwt Ext Fij | 4.30/stk": "🥦 Groenten", "Sodka Hard Seltzer Lime | 3.20/stk": "🥤 Drank", "Toufayan Wh Wheat Pita Br | 3.50/stk": "🍞 Bakkerij", "★ Douwe Egberts Espresso K | 12.05/stk": "☕ Koffie", "★ Douwe Egberts Lungo Dec | 12.05/stk": "☕ Koffie", "★ Vida Olg Cit Spark Drink | 1.85/stk": "🥤 Drank", "Polar Sparkling Frost Orange | 2.50/stk": "🥤 Drank", "Libby's Sliced Pineapple in Juice | 3.85/stk": "🥦 Groenten", "Timson Rinse Appelstr 450g | 7.95/stk": "🧴 Hygiëne & Huis", "★ Vida Sakud Spark Drink Zero | 1.85/stk": "🥤 Drank", "★ Black Energy Drink 240ml | 1.85/stk": "🥤 Drank", "Fru Goudkuipje Ham 100gr | 2.35/stk": "🥩 Vlees", "Gegrookte Carbonade | per kg": "🥩 Vlees", "Karni Mula Spl 5lb=2.27kg ch kl | 8.16/kg": "🥩 Vlees", "Tsmart Trad Pasta Sauce24 | 4.85/stuk": "🍝 Droogwaren", "Knorr Wg Indiase Kip Tand | 7.90/stuk": "🍝 Droogwaren", "Pan Frances Chiki pc": "🍞 Bakkerij", "Old Fashion Ham kl": "🥩 Vlees", "Kalkoen [?] Hulandes kl": "🥩 Vlees", "Koning Griekse Stijl | 10.80/stuk": "🥛 Zuivel", "Witte Bolletje 5pc | 0.49/stuk": "🍞 Bakkerij", "Brasa Caribbean Gold Bee | 3.60/stuk": "🥤 Drank", "Dentyne Ice Artic Chill | 4.30/stuk": "🎉 Overig", "Atlantic Salmon Portions": "🥩 Vlees", "Horeca Broccoli Florets 2": "🥦 Groenten", "Odoban Disinfectant 1 Gal": "🧴 Hygiëne & Huis", "Toufayan Spinach Wrap 11oz | 16.21/kg": "🍞 Bakkerij", "Loinribs Barra": "🥩 Vlees", "Sushi Combo 8pc (1) | 2.03/stuk": "🍝 Droogwaren", "Sushi Combo 8pc (2) | 2.03/stuk": "🍝 Droogwaren", "Maruchan Instant Cup Cheddar | 1.94/stuk": "🍝 Droogwaren", "Soy Vay Veri Veri Teriyaki": "🍝 Droogwaren", "GM Cinnamon Toast Crunch": "🍝 Droogwaren", "Monster Ultra 16oz ×2 | 3.99/stuk (8.44/L)": "🥤 Drank", "Vida Zero Salty Lychee 330ml | 5.61/L": "🥤 Drank", "Starbucks Espresso and Cr | 5.18/stuk": "☕ Koffie", "Royal Club Soda Water 330 (24×) | 1.14/stuk": "🥤 Drank", "Co Op Cat Crunchy Pockets | 2.53/stuk": "🐾 Dier", "A&H Multi Cat Litter": "🐾 Dier", "A&H Double Duty Cat Litter": "🐾 Dier"};
+const VISITS={"mangusa": [{"date": "31-01-2026", "total": 83.13, "note": "excl. 2 onleesbare items"}, {"date": "13-02-2026", "total": 115.29, "note": "bon afgesneden"}, {"date": "10-03-2026", "total": 88.81}, {"date": "21-03-2026", "total": 107.39}, {"date": "04-04-2026", "total": 50.75, "note": "Rio Canario vestiging"}, {"date": "09-04-2026", "total": 128.47}, {"date": "11-04-2026", "total": 17.55, "note": "Rio Canario"}], "goisco": [{"date": "30-03-2026", "total": 105.71}, {"date": "01-04-2026 (1)", "total": 216.58}, {"date": "01-04-2026 (2)", "total": 19.52}, {"date": "10-04-2026", "total": null, "note": "bon afgesneden — totaal onbekend"}], "centrum": [{"date": "02-04-2026", "total": 57.87}, {"date": "07-04-2026", "total": 76.19}]};
+const COMPS=[{"group": "Bakoba / Banaan per kg", "items": [{"store": "Mangusa", "label": "Bakoba kl | 3.50/kg", "price": 3.5, "unit": "/kg", "color": "#4472C4"}, {"store": "Centrum", "label": "Banaan Bakoba | 2.85/kg", "price": 2.85, "unit": "/kg", "color": "#8B3A00"}]}, {"group": "Douwe Egberts Espresso", "items": [{"store": "Mangusa", "label": "DE Espresso K | 12.05/stuk", "price": 12.05, "unit": "/stuk", "color": "#4472C4"}, {"store": "Goisco", "label": "DE Espresso Rich | 11.73/stuk", "price": 11.73, "unit": "/stuk", "color": "#1A5C38"}, {"store": "Goisco", "label": "DE Espresso Kraak | 11.73/stuk", "price": 11.73, "unit": "/stuk", "color": "#2E8B57"}]}, {"group": "Douwe Egberts Lungo", "items": [{"store": "Mangusa", "label": "DE Lungo Dec | 12.05/stuk", "price": 12.05, "unit": "/stuk", "color": "#4472C4"}, {"store": "Goisco", "label": "DE Lungo Sterk | 11.73/stuk", "price": 11.73, "unit": "/stuk", "color": "#1A5C38"}]}, {"group": "Eieren 12 stuks", "items": [{"store": "Mangusa", "label": "Eggs 12pc | 9.95", "price": 9.95, "unit": "/12-pak", "color": "#4472C4"}, {"store": "Goisco", "label": "Eggs Case | 7.95", "price": 7.95, "unit": "/stuk", "color": "#1A5C38"}, {"store": "Centrum", "label": "Eggs Farm 12pc | 6.95", "price": 6.95, "unit": "/12-pak", "color": "#8B3A00"}]}, {"group": "Yoghurt Natuurfarm", "items": [{"store": "Mangusa", "label": "Natfarm 0.946L | 7.03/L", "price": 7.03, "unit": "/L", "color": "#4472C4"}, {"store": "Centrum", "label": "Natfarm 1.5 PR | 4.41/L", "price": 4.41, "unit": "/L", "color": "#8B3A00"}]}, {"group": "Karni Mula (vlees)", "items": [{"store": "Mangusa", "label": "Karni Mula ch kl (21-03)", "price": 10.8, "unit": "totaal", "color": "#4472C4"}, {"store": "Mangusa", "label": "Karni Mula 3lb=1.36kg (31-01)", "price": 10.5, "unit": "totaal", "color": "#5B9BD5"}, {"store": "Mangusa", "label": "Karni Mula 3lb=1.36kg (09-04)", "price": 24.4, "unit": "totaal", "color": "#C00000"}, {"store": "Centrum", "label": "Karni Mula 2lb+ (07-04)", "price": 13.75, "unit": "totaal", "color": "#8B3A00"}]}, {"group": "Sodka Hard Seltzer (per blikje)", "items": [{"store": "Mangusa", "label": "Pineapple | 3.20/stuk", "price": 3.2, "unit": "/stuk", "color": "#4472C4"}, {"store": "Mangusa", "label": "Grapefruit | 3.20/stuk", "price": 3.2, "unit": "/stuk", "color": "#5B9BD5"}, {"store": "Mangusa", "label": "Lime | 3.20/stuk", "price": 3.2, "unit": "/stuk", "color": "#00B0F0"}]}];
+
+// ── TREND COLOR ──────────────────────────────────────────────────────────
+const TREND_REDS    =["#FF3333","#FF5555","#E60000","#CC2200","#FF6666","#B30000","#FF4444"];
+const TREND_ORANGES =["#FF8C00","#FFA500","#E07B00","#FF7700","#FFB347","#CC6600","#FF9933"];
+const TREND_GREENS  =["#4CAF50","#2E8B57","#00B050","#388E3C","#1B8A3C","#006400","#43A047"];
+const TREND_BLUES   =["#4472C4","#5B9BD5","#2196F3","#1976D2","#42A5F5","#0D47A1","#1565C0"];
+const GRAYS         =["#777","#888","#666","#999","#555","#aaa","#888"];
+
+const trendCounters={red:0,orange:0,green:0,blue:0,gray:0};
+function trendColor(vals){
+  const prices=Object.values(vals);
+  if(prices.length<2){const c=GRAYS[trendCounters.gray++%GRAYS.length];return{color:c,trend:'none',pct:null};}
+  const first=prices[0],last=prices[prices.length-1];
+  const pct=(last-first)/first*100;
+  if(pct>20){const c=TREND_REDS[trendCounters.red++%TREND_REDS.length];return{color:c,trend:'big-up',pct};}
+  if(pct>5) {const c=TREND_ORANGES[trendCounters.orange++%TREND_ORANGES.length];return{color:c,trend:'up',pct};}
+  if(pct<-5){const c=TREND_GREENS[trendCounters.green++%TREND_GREENS.length];return{color:c,trend:'down',pct};}
+  const c=TREND_BLUES[trendCounters.blue++%TREND_BLUES.length];return{color:c,trend:'stable',pct};
+}
+
+const TREND_EMOJI={none:'⚫','big-up':'🔴',up:'🟠',down:'🟢',stable:'🔵'};
+
+// ── DATE SORT ────────────────────────────────────────────────────────────
+function parseDate(s){const p=s.replace(/\s*\(\d+\)/,'').split('-');return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));}
+
+// ── BUILD DATASETS ────────────────────────────────────────────────────────
+const charts={}, vis={mangusa:{},goisco:{},centrum:{}};
+const activeCats={mangusa:new Set(),goisco:new Set(),centrum:new Set()};
+
+function buildDatasets(storeKey){
+  // Reset trend counters per store build
+  Object.keys(trendCounters).forEach(k=>trendCounters[k]=0);
+  const raw=RAW[storeKey];
+  const dateSet=new Set();
+  Object.values(raw).forEach(pts=>Object.keys(pts).forEach(d=>dateSet.add(d)));
+  const dates=Array.from(dateSet).sort((a,b)=>parseDate(a)-parseDate(b));
+  const datasets=Object.entries(raw).map(([name,pts])=>{
+    const {color,trend,pct}=trendColor(pts);
+    const isRecurring=Object.keys(pts).length>1;
+    const cat=CATS[name]||'🎉 Overig';
+    return{
+      label:name, cat,
+      data:dates.map(d=>pts[d]!==undefined?pts[d]:null),
+      borderColor:color,backgroundColor:color,
+      pointBackgroundColor:color,pointBorderColor:'#07101c',pointBorderWidth:1.5,
+      pointRadius:isRecurring?7:5,pointHoverRadius:11,
+      borderWidth:isRecurring?2.5:1.5,
+      borderDash:isRecurring?[]:[5,4],
+      spanGaps:false,tension:0.15,isRecurring,
+      hitRadius:8,hoverBorderWidth:4,
+      trend,pct,
+    };
+  });
+  return{dates,datasets};
+}
+
+// ── CREATE CHART ───────────────────────────────────────────────────────────
+const GRID={mangusa:'#162a40',goisco:'#162a40',centrum:'#162a40'};
+function createChart(storeKey){
+  const{dates,datasets}=buildDatasets(storeKey);
+  datasets.forEach(ds=>{vis[storeKey][ds.label]=true;});
+  const ctx=document.getElementById('chart-'+storeKey).getContext('2d');
+  const chart=new Chart(ctx,{
+    type:'line',data:{labels:dates,datasets},
+    options:{
+      responsive:true,animation:{duration:350},
+      interaction:{mode:'nearest',intersect:false,axis:'xy'},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#0d1e30',borderColor:'#c8733a',borderWidth:1,
+          titleColor:'#ede8de',bodyColor:'#7d94ab',padding:14,usePointStyle:true,
+          callbacks:{
+            title(items){return items[0]?.dataset?.label??'';},
+            label(item){
+              if(item.raw===null)return null;
+              const ds=item.dataset;
+              const lbl=ds.label;
+              const pipe=lbl.indexOf('|');
+              const unit=pipe>-1?' ('+lbl.slice(pipe+2)+')':'';
+              // % change vs previous point
+              const data=ds.data,idx=item.dataIndex;
+              let prev=null;
+              for(let i=idx-1;i>=0;i--){if(data[i]!==null){prev=data[i];break;}}
+              let changeStr='';
+              if(prev!==null){
+                const p=((item.raw-prev)/prev*100);
+                const arrow=p>0?'↑ +':(p<0?'↓ ':'→ ');
+                changeStr='  '+arrow+Math.abs(p).toFixed(1)+'% vs vorige meting';
+              }
+              const lines=[
+                '  📅  '+item.label,
+                '  💰  ANG '+item.raw.toFixed(2)+unit,
+              ];
+              if(changeStr)lines.push(changeStr);
+              return lines;
+            },
+            afterBody(items){
+              const ds=items[0]?.dataset;if(!ds)return[];
+              const emoji=TREND_EMOJI[ds.trend]||'';
+              if(ds.trend==='big-up')return['',`  ${emoji}  Forse stijging (>${Math.abs(ds.pct||0).toFixed(0)}% totaal)`];
+              if(ds.trend==='up')   return['',`  ${emoji}  Lichte stijging (+${Math.abs(ds.pct||0).toFixed(0)}% totaal)`];
+              if(ds.trend==='down') return['',`  ${emoji}  Prijsdaling (${(ds.pct||0).toFixed(0)}% totaal)`];
+              if(ds.trend==='stable')return['',`  ${emoji}  Stabiele prijs`];
+              return['','  ⚫  Éénmalig gezien'];
+            },
+          },
+        },
+      },
+      scales:{
+        x:{ticks:{color:'#7d94ab',font:{size:11,family:'Syne'}},grid:{color:GRID[storeKey]||'#162a40'},border:{color:'rgba(200,115,58,.15)'}},
+        y:{beginAtZero:true,ticks:{color:'#7d94ab',font:{size:11,family:'Syne'},callback:v=>'ANG '+v.toFixed(2)},grid:{color:GRID[storeKey]||'#162a40'},border:{color:'rgba(200,115,58,.15)'},title:{display:true,text:'Prijs (ANG)',color:'#7d94ab',font:{size:11,family:'Syne'}}},
+      },
+    },
+  });
+  charts[storeKey]=chart;
+  buildLegend(storeKey,datasets);
+  buildCatFilters(storeKey,datasets);
+}
+
+// ── LEGEND ────────────────────────────────────────────────────────────────
+function buildLegend(storeKey,datasets){
+  const container=document.getElementById('legend-'+storeKey);
+  container.innerHTML='';
+  datasets.forEach(ds=>{
+    const item=document.createElement('div');
+    item.className='legend-item';
+    item.dataset.lbl=ds.label;
+    item.dataset.cat=ds.cat;
+    const swatch=document.createElement('div');
+    swatch.className=ds.isRecurring?'line-sw':'dot';
+    swatch.style.background=ds.backgroundColor;
+    const emoji=document.createElement('span');
+    emoji.className='trend';
+    emoji.textContent=TREND_EMOJI[ds.trend]||'';
+    const txt=document.createTextNode(' '+ds.label);
+    item.appendChild(swatch);item.appendChild(emoji);item.appendChild(txt);
+    item.addEventListener('click',()=>toggleSeries(storeKey,ds.label,item));
+    container.appendChild(item);
+  });
+}
+
+// ── CATEGORY FILTERS ──────────────────────────────────────────────────────
+function buildCatFilters(storeKey,datasets){
+  const cats=[...new Set(datasets.map(d=>d.cat))].sort();
+  const container=document.getElementById('cf-'+storeKey);
+  container.innerHTML='';
+  cats.forEach(cat=>{
+    const btn=document.createElement('button');
+    btn.className='cf on';btn.textContent=cat;btn.dataset.cat=cat;
+    btn.addEventListener('click',()=>toggleCat(storeKey,cat,btn));
+    container.appendChild(btn);
+    activeCats[storeKey].add(cat);
+  });
+}
+
+function toggleCat(storeKey,cat,btn){
+  if(activeCats[storeKey].has(cat)){
+    activeCats[storeKey].delete(cat);btn.classList.remove('on');
+  }else{
+    activeCats[storeKey].add(cat);btn.classList.add('on');
+  }
+  applyFilters(storeKey);
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────
+function onSearch(storeKey,query){applyFilters(storeKey,query);}
+
+function applyFilters(storeKey,query){
+  const q=(query||document.getElementById('search-'+storeKey).value).toLowerCase();
+  const chart=charts[storeKey];
+  if(!chart)return;
+  chart.data.datasets.forEach(ds=>{
+    const matchSearch=!q||ds.label.toLowerCase().includes(q);
+    const matchCat=activeCats[storeKey].has(ds.cat);
+    ds.hidden=!(matchSearch&&matchCat);
+    vis[storeKey][ds.label]=!ds.hidden;
+  });
+  document.querySelectorAll('#legend-'+storeKey+' .legend-item').forEach(el=>{
+    const ds=chart.data.datasets.find(d=>d.label===el.dataset.lbl);
+    el.classList.toggle('hidden',ds?.hidden??false);
+  });
+  chart.update();
+}
+
+// ── TOGGLE / FILTER ────────────────────────────────────────────────────────
+function toggleSeries(storeKey,label,el){
+  const chart=charts[storeKey];
+  const ds=chart.data.datasets.find(d=>d.label===label);if(!ds)return;
+  vis[storeKey][label]=!vis[storeKey][label];
+  ds.hidden=!vis[storeKey][label];
+  el.classList.toggle('hidden');
+  chart.update();
+}
+
+function filterStore(storeKey,mode,btn){
+  document.querySelectorAll('#panel-'+storeKey+' .filter-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const chart=charts[storeKey];
+  chart.data.datasets.forEach(ds=>{
+    ds.hidden=mode==='recurring'?!ds.isRecurring:false;
+    vis[storeKey][ds.label]=!ds.hidden;
+  });
+  document.querySelectorAll('#legend-'+storeKey+' .legend-item').forEach(el=>{
+    const ds=chart.data.datasets.find(d=>d.label===el.dataset.lbl);
+    el.classList.toggle('hidden',ds?.hidden??false);
+  });
+  chart.update();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
+function buildDashboard(){
+  // Spending chart
+  const allDates=[],allMangusa=[],allGoisco=[],allCentrum=[];
+  const storeVisitMap={mangusa:{},goisco:{},centrum:{}};
+  Object.entries(VISITS).forEach(([store,visits])=>{
+    visits.forEach(v=>{storeVisitMap[store][v.date]=v.total;});
+  });
+  // Collect all dates
+  const allDateSet=new Set();
+  Object.values(VISITS).forEach(visits=>visits.forEach(v=>allDateSet.add(v.date)));
+  const sortedDates=[...allDateSet].sort((a,b)=>parseDate(a)-parseDate(b));
+
+  const spendCtx=document.getElementById('chart-spending').getContext('2d');
+  new Chart(spendCtx,{
+    type:'bar',
+    data:{
+      labels:sortedDates,
+      datasets:[
+        {label:'Mangusa',data:sortedDates.map(d=>storeVisitMap.mangusa[d]||null),backgroundColor:'rgba(200,115,58,.55)',borderColor:'#c8733a',borderWidth:1.5,borderRadius:3},
+        {label:'Goisco', data:sortedDates.map(d=>storeVisitMap.goisco[d]||null), backgroundColor:'rgba(23,184,172,.45)',borderColor:'#17b8ac',borderWidth:1.5,borderRadius:3},
+        {label:'Centrum',data:sortedDates.map(d=>storeVisitMap.centrum[d]||null),backgroundColor:'rgba(224,141,80,.45)',borderColor:'#e08d50',borderWidth:1.5,borderRadius:3},
+      ],
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{labels:{color:'#7d94ab',font:{size:11,family:'Syne'}}},
+        tooltip:{
+          backgroundColor:'#0d1e30',borderColor:'#c8733a',borderWidth:1,
+          callbacks:{label:i=>`  ANG ${i.raw?.toFixed(2)??'-'}`},
+        },
+      },
+      scales:{
+        x:{ticks:{color:'#7d94ab',font:{size:10,family:'Syne'}},grid:{color:'#162a40'}},
+        y:{beginAtZero:true,ticks:{color:'#7d94ab',font:{family:'Syne'},callback:v=>'ANG '+v},grid:{color:'#162a40'},title:{display:true,text:'Totaal (ANG)',color:'#7d94ab',font:{size:10,family:'Syne'}}},
+      },
+    },
+  });
+
+  // Top 5 price increases
+  const increases=[];
+  Object.entries(RAW).forEach(([store,prods])=>{
+    Object.entries(prods).forEach(([name,pts])=>{
+      const prices=Object.values(pts);
+      if(prices.length<2)return;
+      const first=prices[0],last=prices[prices.length-1];
+      const pct=(last-first)/first*100;
+      if(pct>0)increases.push({name,store,first,last,pct});
+    });
+  });
+  increases.sort((a,b)=>b.pct-a.pct);
+  const topEl=document.getElementById('top-increases');
+  increases.slice(0,5).forEach(x=>{
+    const badge=x.pct>20?'badge-red':x.pct>5?'badge-orange':'badge-blue';
+    topEl.innerHTML+=`<div class="stat-row">
+      <span class="label" title="${x.name}">${x.name.slice(0,28)}${x.name.length>28?'…':''}</span>
+      <span class="val">+${x.pct.toFixed(0)}%</span>
+      <span class="badge ${badge}">${x.store}</span>
+    </div>`;
+  });
+
+  // Cheapest per unit (recurring products with /kg or /L)
+  const units=[];
+  Object.entries(RAW).forEach(([store,prods])=>{
+    Object.entries(prods).forEach(([name,pts])=>{
+      const pipe=name.indexOf('|');
+      if(pipe<0)return;
+      const unitStr=name.slice(pipe+2);
+      if(!/\/kg|\/L/.test(unitStr))return;
+      const avgPrice=Object.values(pts).reduce((a,b)=>a+b,0)/Object.values(pts).length;
+      const numMatch=unitStr.match(/[\d.]+/);
+      if(numMatch)units.push({name:name.slice(0,pipe-1).trim(),unitStr,avgPrice:parseFloat(numMatch[0]),store});
+    });
+  });
+  units.sort((a,b)=>a.avgPrice-b.avgPrice);
+  const cheapEl=document.getElementById('cheapest-per-unit');
+  units.slice(0,5).forEach(x=>{
+    cheapEl.innerHTML+=`<div class="stat-row">
+      <span class="label" title="${x.name}">${x.name.slice(0,24)}${x.name.length>24?'…':''}</span>
+      <span class="val">ANG ${x.avgPrice.toFixed(2)}</span>
+      <span class="badge badge-green">${x.unitStr.replace(/[\d.]+\s*/,'').trim()}</span>
+    </div>`;
+  });
+
+  // Store stats
+  const statsEl=document.getElementById('store-stats');
+  Object.entries(RAW).forEach(([store,prods])=>{
+    const n=Object.keys(prods).length;
+    const recurring=Object.values(prods).filter(p=>Object.keys(p).length>1).length;
+    const storeLabel={mangusa:'🏪 Mangusa',goisco:'🏬 Goisco',centrum:'🛒 Centrum'}[store];
+    statsEl.innerHTML+=`<div class="stat-row">
+      <span class="label">${storeLabel}</span>
+      <span class="val">${n} producten</span>
+      <span class="badge badge-blue">${recurring} trends</span>
+    </div>`;
+  });
+
+  // Visit stats
+  const visitEl=document.getElementById('visit-stats');
+  Object.entries(VISITS).forEach(([store,visits])=>{
+    const avg=(visits.reduce((s,v)=>s+v.total,0)/visits.length).toFixed(2);
+    const storeLabel={mangusa:'🏪 Mangusa',goisco:'🏬 Goisco',centrum:'🛒 Centrum'}[store];
+    visitEl.innerHTML+=`<div class="stat-row">
+      <span class="label">${storeLabel} (${visits.length}×)</span>
+      <span class="val">ø ANG ${avg}</span>
+    </div>`;
+  });
+}
+
+// ── COMPARISON TAB ─────────────────────────────────────────────────────────
+function buildComparisons(){
+  const container=document.getElementById('comparisons-container');
+  COMPS.forEach(group=>{
+    const maxPrice=Math.max(...group.items.map(x=>x.price));
+    const minPrice=Math.min(...group.items.map(x=>x.price));
+    let html=`<div class="comp-group"><h3>${group.group}</h3><div class="comp-bar-wrap">`;
+    group.items.forEach(item=>{
+      const pct=Math.round(item.price/maxPrice*100);
+      const isCheapest=item.price===minPrice;
+      html+=`<div class="comp-bar-row">
+        <div class="lbl" title="${item.label}">[${item.store}] ${item.label}</div>
+        <div class="comp-bar-outer ${isCheapest?'comp-cheapest':''}">
+          <div class="comp-bar-inner" style="width:${pct}%;background:${item.color}">
+            <span>ANG ${item.price.toFixed(2)}${item.unit}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+    html+='</div></div>';
+    container.innerHTML+=html;
+  });
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────
+const initialized={};
+function switchTab(key){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.tab.'+key).classList.add('active');
+  document.getElementById('panel-'+key).classList.add('active');
+  if(!initialized[key]){
+    initialized[key]=true;
+    if(key==='dashboard')buildDashboard();
+    else if(key==='vergelijk')buildComparisons();
+    else createChart(key);
+  }
+}
+
+// Init dashboard on load
+buildDashboard();
+initialized.dashboard=true;
+</script>
+</body>
+</html>
