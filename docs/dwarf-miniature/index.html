@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dwarf Miniature — Concept Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,300;1,600&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink:    #07101c;
+    --deep:   #0d1e30;
+    --layer:  #162a40;
+    --terra:  #c8733a;
+    --terra2: #e08d50;
+    --teal:   #17b8ac;
+    --cream:  #ede8de;
+    --fog:    #7d94ab;
+    --border: rgba(200,115,58,0.18);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .page { max-width: 960px; margin: 0 auto; }
+
+  .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--teal);
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic; font-weight: 600;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: var(--cream); line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .subtitle { color: var(--fog); font-size: 14px; margin-bottom: 48px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--deep);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .card-title {
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--fog); margin-bottom: 18px;
+  }
+
+  /* ── SVG canvas ─────────────────────────── */
+  .canvas-card { background: var(--deep); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+
+  svg text { font-family: 'Syne', sans-serif; }
+
+  /* ── Specs table ─────────────────────────── */
+  .specs { width: 100%; border-collapse: collapse; }
+  .specs tr { border-bottom: 1px solid var(--border); }
+  .specs tr:last-child { border-bottom: none; }
+  .specs td { padding: 10px 4px; font-size: 13px; }
+  .specs td:first-child { color: var(--fog); width: 52%; }
+  .specs td:last-child  { color: var(--cream); font-weight: 600; text-align: right; }
+
+  .tag {
+    display: inline-block;
+    background: rgba(23,184,172,0.12);
+    color: var(--teal);
+    border: 1px solid rgba(23,184,172,0.25);
+    border-radius: 6px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 8px; margin-right: 6px; margin-top: 4px;
+  }
+  .tag.terra {
+    background: rgba(200,115,58,0.12);
+    color: var(--terra2);
+    border-color: rgba(200,115,58,0.25);
+  }
+
+  .print-tips { list-style: none; }
+  .print-tips li {
+    font-size: 13px; color: var(--fog);
+    padding: 7px 0 7px 20px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .print-tips li:last-child { border-bottom: none; }
+  .print-tips li::before {
+    content: '›';
+    position: absolute; left: 0;
+    color: var(--terra);
+  }
+
+  .download-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--terra);
+    color: var(--ink);
+    border: none; border-radius: 10px;
+    padding: 12px 24px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 20px;
+  }
+  .download-btn:hover { background: var(--terra2); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="label">Miniature Design</div>
+  <h1>Fantasy Dwarf<br/>Warrior</h1>
+  <p class="subtitle">SLS / Resin Print · 12K · 40mm base · 50mm height · Novice painter friendly</p>
+
+  <!-- ── FRONT VIEW SVG ─────────────────────── -->
+  <div class="canvas-card" style="margin-bottom:24px;">
+    <div class="card-title">Front view — orthographic concept</div>
+    <svg viewBox="0 0 560 540" width="100%" style="display:block;">
+
+      <!-- background grid -->
+      <defs>
+        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(200,115,58,0.07)" stroke-width="0.5"/>
+        </pattern>
+        <!-- axe blade gradient -->
+        <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stop-color="#9db8cc"/>
+          <stop offset="50%"  stop-color="#ede8de"/>
+          <stop offset="100%" stop-color="#7d94ab"/>
+        </linearGradient>
+        <linearGradient id="armour" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#1e3a55"/>
+          <stop offset="100%" stop-color="#0d1e30"/>
+        </linearGradient>
+        <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#d4967a"/>
+          <stop offset="100%" stop-color="#b0775a"/>
+        </linearGradient>
+      </defs>
+
+      <rect width="560" height="540" fill="url(#grid)"/>
+
+      <!-- ── dimension lines ───────────────────── -->
+      <!-- total height arrow left -->
+      <line x1="80" y1="100" x2="80" y2="488" stroke="rgba(23,184,172,0.5)" stroke-width="1" stroke-dasharray="4 3"/>
+      <line x1="74" y1="100" x2="86" y2="100" stroke="#17b8ac" stroke-width="1.5"/>
+      <line x1="74" y1="488" x2="86" y2="488" stroke="#17b8ac" stroke-width="1.5"/>
+      <text x="50" y="298" fill="#17b8ac" font-size="11" text-anchor="middle" transform="rotate(-90,50,298)">50 mm total</text>
+
+      <!-- base width arrow bottom -->
+      <line x1="180" y1="510" x2="380" y2="510" stroke="rgba(23,184,172,0.5)" stroke-width="1" stroke-dasharray="4 3"/>
+      <line x1="180" y1="504" x2="180" y2="516" stroke="#17b8ac" stroke-width="1.5"/>
+      <line x1="380" y1="504" x2="380" y2="516" stroke="#17b8ac" stroke-width="1.5"/>
+      <text x="280" y="530" fill="#17b8ac" font-size="11" text-anchor="middle">40 mm base</text>
+
+      <!-- section label lines -->
+      <line x1="330" y1="130" x2="400" y2="130" stroke="rgba(200,115,58,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="406" y="134" fill="#c8733a" font-size="10">HEAD  (bald)</text>
+
+      <line x1="330" y1="175" x2="400" y2="165" stroke="rgba(200,115,58,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="406" y="169" fill="#c8733a" font-size="10">BEARD</text>
+
+      <line x1="330" y1="250" x2="400" y2="240" stroke="rgba(200,115,58,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="406" y="244" fill="#c8733a" font-size="10">PAULDRONS</text>
+
+      <line x1="330" y1="310" x2="400" y2="305" stroke="rgba(200,115,58,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="406" y="309" fill="#c8733a" font-size="10">CHEST ARMOUR</text>
+
+      <line x1="330" y1="370" x2="400" y2="365" stroke="rgba(200,115,58,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="406" y="369" fill="#c8733a" font-size="10">BELT</text>
+
+      <line x1="330" y1="430" x2="400" y2="425" stroke="rgba(200,115,58,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="406" y="429" fill="#c8733a" font-size="10">LEGS + BOOTS</text>
+
+      <!-- ── BASE ───────────────────────────────── -->
+      <ellipse cx="280" cy="490" rx="100" ry="12" fill="#1a2e44" stroke="#c8733a" stroke-width="1.5"/>
+      <rect x="180" y="478" width="200" height="12" fill="#1a2e44" stroke="#c8733a" stroke-width="1.5" rx="2"/>
+      <ellipse cx="280" cy="478" rx="100" ry="12" fill="#1e3550" stroke="#c8733a" stroke-width="1.5"/>
+
+      <!-- ── BOOTS ───────────────────────────────── -->
+      <!-- left boot -->
+      <rect x="232" y="430" width="34" height="48" rx="10" fill="#12263a" stroke="#7d94ab" stroke-width="1"/>
+      <!-- right boot -->
+      <rect x="294" y="430" width="34" height="48" rx="10" fill="#12263a" stroke="#7d94ab" stroke-width="1"/>
+      <!-- toe caps -->
+      <ellipse cx="249" cy="474" rx="17" ry="7" fill="#0d1e30" stroke="#7d94ab" stroke-width="1"/>
+      <ellipse cx="311" cy="474" rx="17" ry="7" fill="#0d1e30" stroke="#7d94ab" stroke-width="1"/>
+
+      <!-- ── LEGS (greaves) ─────────────────────── -->
+      <rect x="234" y="360" width="30" height="75" rx="8" fill="url(#armour)" stroke="#4a6e90" stroke-width="1.5"/>
+      <rect x="296" y="360" width="30" height="75" rx="8" fill="url(#armour)" stroke="#4a6e90" stroke-width="1.5"/>
+      <!-- kneecaps -->
+      <ellipse cx="249" cy="380" rx="12" ry="9" fill="#1e3a55" stroke="#7d94ab" stroke-width="1"/>
+      <ellipse cx="311" cy="380" rx="12" ry="9" fill="#1e3a55" stroke="#7d94ab" stroke-width="1"/>
+
+      <!-- ── TORSO (barrel chest) ───────────────── -->
+      <rect x="215" y="240" width="130" height="125" rx="18" fill="url(#armour)" stroke="#4a6e90" stroke-width="2"/>
+      <!-- chest plate centre line -->
+      <line x1="280" y1="248" x2="280" y2="358" stroke="#7d94ab" stroke-width="0.8" stroke-dasharray="5 3"/>
+      <!-- pec armour plates -->
+      <path d="M 222 260 Q 270 250 280 270 Q 270 285 222 280 Z" fill="#1e3a55" stroke="#4a6e90" stroke-width="1"/>
+      <path d="M 338 260 Q 290 250 280 270 Q 290 285 338 280 Z" fill="#1e3a55" stroke="#4a6e90" stroke-width="1"/>
+      <!-- rivets -->
+      <circle cx="235" cy="295" r="2.5" fill="#7d94ab"/>
+      <circle cx="325" cy="295" r="2.5" fill="#7d94ab"/>
+      <circle cx="235" cy="330" r="2.5" fill="#7d94ab"/>
+      <circle cx="325" cy="330" r="2.5" fill="#7d94ab"/>
+      <!-- belly plate -->
+      <rect x="250" y="320" width="60" height="30" rx="6" fill="#162a40" stroke="#4a6e90" stroke-width="1"/>
+
+      <!-- ── BELT ────────────────────────────────── -->
+      <rect x="213" y="355" width="134" height="14" rx="5" fill="#1a0e07" stroke="#c8733a" stroke-width="1.5"/>
+      <!-- buckle -->
+      <rect x="268" y="355" width="24" height="14" rx="3" fill="#c8733a"/>
+      <rect x="274" y="359" width="12" height="6" rx="2" fill="#07101c"/>
+
+      <!-- ── PAULDRONS ───────────────────────────── -->
+      <!-- left pauldron -->
+      <ellipse cx="198" cy="260" rx="30" ry="22" fill="url(#armour)" stroke="#4a6e90" stroke-width="1.5"/>
+      <path d="M 172 255 Q 195 240 218 258" fill="none" stroke="#7d94ab" stroke-width="1"/>
+      <path d="M 174 265 Q 197 252 218 268" fill="none" stroke="#7d94ab" stroke-width="0.7"/>
+      <!-- right pauldron -->
+      <ellipse cx="362" cy="260" rx="30" ry="22" fill="url(#armour)" stroke="#4a6e90" stroke-width="1.5"/>
+      <path d="M 388 255 Q 365 240 342 258" fill="none" stroke="#7d94ab" stroke-width="1"/>
+      <path d="M 386 265 Q 363 252 342 268" fill="none" stroke="#7d94ab" stroke-width="0.7"/>
+
+      <!-- ── LEFT ARM (outstretched) ─────────────── -->
+      <rect x="152" y="265" width="65" height="26" rx="12" fill="url(#armour)" stroke="#4a6e90" stroke-width="1.5" transform="rotate(-12,185,278)"/>
+      <!-- left fist -->
+      <ellipse cx="152" cy="296" rx="16" ry="13" fill="url(#skin)" stroke="#7d94ab" stroke-width="1"/>
+
+      <!-- ── RIGHT ARM (raised, holding axe) ───────── -->
+      <rect x="343" y="210" width="26" height="70" rx="12" fill="url(#armour)" stroke="#4a6e90" stroke-width="1.5" transform="rotate(20,356,245)"/>
+      <!-- right fist -->
+      <ellipse cx="370" cy="215" rx="13" ry="16" fill="url(#skin)" stroke="#7d94ab" stroke-width="1"/>
+
+      <!-- ── AXE ─────────────────────────────────── -->
+      <!-- handle -->
+      <rect x="376" y="100" width="7" height="170" rx="3" fill="#6b4a2a" stroke="#4a3018" stroke-width="1"/>
+      <!-- pommel -->
+      <ellipse cx="379" cy="268" rx="10" ry="8" fill="url(#steel)" stroke="#7d94ab" stroke-width="1"/>
+      <!-- crossguard -->
+      <rect x="358" y="185" width="42" height="8" rx="4" fill="url(#steel)" stroke="#7d94ab" stroke-width="1"/>
+      <!-- upper axe head -->
+      <path d="M 375 104 L 420 112 L 426 130 L 420 148 L 375 140 Z" fill="url(#steel)" stroke="#9db8cc" stroke-width="1.5"/>
+      <!-- edge highlight -->
+      <line x1="420" y1="112" x2="426" y2="130" stroke="#ede8de" stroke-width="2"/>
+      <line x1="426" y1="130" x2="420" y2="148" stroke="#ede8de" stroke-width="2"/>
+      <!-- back spike -->
+      <path d="M 375 118 L 352 126 L 352 134 L 375 138 Z" fill="url(#steel)" stroke="#9db8cc" stroke-width="1"/>
+
+      <!-- ── HEAD ────────────────────────────────── -->
+      <!-- neck -->
+      <rect x="263" y="210" width="34" height="32" rx="10" fill="url(#skin)" stroke="#b0775a" stroke-width="1"/>
+      <!-- head -->
+      <ellipse cx="280" cy="175" rx="48" ry="52" fill="url(#skin)" stroke="#b0775a" stroke-width="1.5"/>
+      <!-- brow ridge shadow -->
+      <path d="M 240 162 Q 280 154 320 162" fill="none" stroke="#8a5a3a" stroke-width="2.5"/>
+      <!-- eyes (under heavy brow) -->
+      <ellipse cx="261" cy="168" rx="8" ry="5" fill="#07101c"/>
+      <ellipse cx="299" cy="168" rx="8" ry="5" fill="#07101c"/>
+      <circle cx="262" cy="167" r="3" fill="#1a3050"/>
+      <circle cx="300" cy="167" r="3" fill="#1a3050"/>
+      <!-- eye highlights -->
+      <circle cx="265" cy="165" r="1.5" fill="#ede8de" opacity="0.8"/>
+      <circle cx="303" cy="165" r="1.5" fill="#ede8de" opacity="0.8"/>
+      <!-- nose -->
+      <ellipse cx="280" cy="180" rx="8" ry="6" fill="#c07858"/>
+      <!-- nostrils -->
+      <circle cx="275" cy="182" r="2.5" fill="#8a4a30"/>
+      <circle cx="285" cy="182" r="2.5" fill="#8a4a30"/>
+
+      <!-- ── BEARD ───────────────────────────────── -->
+      <!-- moustache -->
+      <path d="M 255 192 Q 265 188 280 190 Q 295 188 305 192 Q 295 200 280 198 Q 265 200 255 192 Z" fill="#c8a060" stroke="#a07840" stroke-width="1"/>
+      <!-- main beard block -->
+      <path d="M 235 200 Q 250 195 280 198 Q 310 195 325 200 Q 335 220 330 250 Q 320 280 300 295 Q 280 305 260 295 Q 240 280 230 250 Q 225 220 235 200 Z" fill="#c8a060" stroke="#a07840" stroke-width="1.5"/>
+      <!-- beard strands -->
+      <line x1="255" y1="205" x2="248" y2="295" stroke="#a07840" stroke-width="0.8" opacity="0.6"/>
+      <line x1="270" y1="200" x2="267" y2="300" stroke="#a07840" stroke-width="0.8" opacity="0.6"/>
+      <line x1="280" y1="200" x2="280" y2="303" stroke="#a07840" stroke-width="0.8" opacity="0.6"/>
+      <line x1="290" y1="200" x2="293" y2="300" stroke="#a07840" stroke-width="0.8" opacity="0.6"/>
+      <line x1="305" y1="205" x2="312" y2="295" stroke="#a07840" stroke-width="0.8" opacity="0.6"/>
+      <!-- beard highlight -->
+      <path d="M 263 208 Q 280 204 297 208 Q 290 215 280 213 Q 270 215 263 208 Z" fill="#e0c080" opacity="0.4"/>
+
+      <!-- bald highlight on head -->
+      <ellipse cx="272" cy="148" rx="18" ry="12" fill="#d4a080" opacity="0.25" transform="rotate(-15,272,148)"/>
+
+    </svg>
+  </div>
+
+  <!-- ── SIDE VIEW ──────────────────────────────── -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
+
+    <div class="canvas-card">
+      <div class="card-title">Side view</div>
+      <svg viewBox="0 0 260 400" width="100%" style="display:block;">
+        <defs>
+          <linearGradient id="armour2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#1e3a55"/>
+            <stop offset="100%" stop-color="#0d1e30"/>
+          </linearGradient>
+        </defs>
+        <rect width="260" height="400" fill="url(#grid)"/>
+        <!-- base -->
+        <ellipse cx="120" cy="370" rx="75" ry="10" fill="#1a2e44" stroke="#c8733a" stroke-width="1.5"/>
+        <rect x="45" y="360" width="150" height="10" fill="#1a2e44" stroke="#c8733a" stroke-width="1"/>
+        <!-- boot side -->
+        <rect x="85" y="318" width="40" height="42" rx="10" fill="#12263a" stroke="#7d94ab" stroke-width="1"/>
+        <!-- leg side -->
+        <rect x="88" y="265" width="34" height="58" rx="8" fill="url(#armour2)" stroke="#4a6e90" stroke-width="1.5"/>
+        <!-- torso side -->
+        <rect x="78" y="178" width="72" height="92" rx="14" fill="url(#armour2)" stroke="#4a6e90" stroke-width="2"/>
+        <!-- pauldron side -->
+        <ellipse cx="82" cy="195" rx="22" ry="16" fill="url(#armour2)" stroke="#4a6e90" stroke-width="1.5"/>
+        <!-- arm side -->
+        <rect x="58" y="200" width="24" height="52" rx="10" fill="url(#armour2)" stroke="#4a6e90" stroke-width="1.5" transform="rotate(10,70,226)"/>
+        <!-- axe handle side (thin) -->
+        <rect x="145" y="72" width="6" height="130" rx="3" fill="#6b4a2a" stroke="#4a3018" stroke-width="1"/>
+        <!-- axe blade side (very thin profile) -->
+        <ellipse cx="148" cy="80" rx="5" ry="22" fill="#9db8cc" stroke="#7d94ab" stroke-width="1"/>
+        <!-- beard side -->
+        <path d="M 100 158 Q 115 155 118 165 Q 120 195 115 225 Q 108 240 100 235 Q 88 225 88 195 Q 88 168 100 158 Z" fill="#c8a060" stroke="#a07840" stroke-width="1.5"/>
+        <!-- neck -->
+        <rect x="100" y="160" width="28" height="22" rx="8" fill="#d4967a" stroke="#b0775a" stroke-width="1"/>
+        <!-- head side -->
+        <ellipse cx="114" cy="132" rx="36" ry="40" fill="#d4967a" stroke="#b0775a" stroke-width="1.5"/>
+        <!-- brow -->
+        <path d="M 82 122 Q 100 115 128 120" fill="none" stroke="#8a5a3a" stroke-width="2.5"/>
+        <!-- eye -->
+        <ellipse cx="87" cy="128" rx="6" ry="4" fill="#07101c"/>
+        <!-- nose side -->
+        <path d="M 80 138 Q 74 142 78 148" fill="none" stroke="#a07858" stroke-width="2.5"/>
+        <!-- bald highlight -->
+        <ellipse cx="105" cy="108" rx="14" ry="10" fill="#d4a080" opacity="0.25"/>
+      </svg>
+    </div>
+
+    <!-- ── SPECS + PRINT TIPS ─────────────────────────── -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="card">
+        <div class="card-title">Print specifications</div>
+        <table class="specs">
+          <tr><td>Total height</td><td>50 mm</td></tr>
+          <tr><td>Base diameter</td><td>40 mm</td></tr>
+          <tr><td>Base thickness</td><td>3 mm</td></tr>
+          <tr><td>Torso width</td><td>~18 mm</td></tr>
+          <tr><td>Axe reach (total)</td><td>~55 mm w/axe</td></tr>
+          <tr><td>Print tech</td><td>SLS / MSLA resin</td></tr>
+          <tr><td>Resolution</td><td>12K (≈ 19 µm XY)</td></tr>
+          <tr><td>Layer height rec.</td><td>0.05 mm</td></tr>
+          <tr><td>Source file</td><td>dwarf.scad → STL</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Painting guide — novice</div>
+        <ul class="print-tips">
+          <li>Prime grey — shows all surface detail</li>
+          <li>Basecoat skin with Bugman's Glow</li>
+          <li>Armour: Macragge Blue + Agrax wash</li>
+          <li>Axe blade: Leadbelcher + Nuln Oil</li>
+          <li>Beard: Zandri Dust + Seraphim Sepia</li>
+          <li>Belt leather: Rhinox Hide + dry-brush Doombull</li>
+          <li>Bald head: highlight with Kislev Flesh</li>
+          <li>Base: texture paste + Agrax, dry-brush cream</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAGS + DOWNLOAD ──────────────────────── -->
+  <div class="card">
+    <div class="card-title">Tags</div>
+    <span class="tag">Fantasy</span>
+    <span class="tag">Dwarf</span>
+    <span class="tag">Warrior</span>
+    <span class="tag">War Axe</span>
+    <span class="tag">Bald</span>
+    <span class="tag">Beard</span>
+    <span class="tag terra">40mm Base</span>
+    <span class="tag terra">50mm Height</span>
+    <span class="tag terra">12K Resin</span>
+    <span class="tag terra">Novice Friendly</span>
+
+    <br/>
+    <a href="dwarf.scad" download class="download-btn">
+      ↓ Download dwarf.scad
+    </a>
+    <p style="font-size:12px; color:var(--fog); margin-top:12px;">
+      Open in <strong style="color:var(--cream)">OpenSCAD</strong> → Render (F6) → Export as STL → slice with Chitubox / Lychee for your 12K printer.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>
