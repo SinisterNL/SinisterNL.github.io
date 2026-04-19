@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SinisterNL — Photo Uploader</title>
+  <style>
+    :root {
+      --ink: #07101c;
+      --deep: #0d1e30;
+      --layer: #162a40;
+      --terra: #c8733a;
+      --terra2: #e08d50;
+      --teal: #17b8ac;
+      --cream: #ede8de;
+      --fog: #7d94ab;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .card {
+      background: var(--deep);
+      border: 1px solid rgba(200,115,58,0.2);
+      border-radius: 12px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 520px;
+    }
+    h1 {
+      font-size: 1.3rem;
+      color: var(--terra);
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.02em;
+    }
+    .subtitle {
+      font-size: 0.75rem;
+      color: var(--fog);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+    label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--fog);
+      margin-bottom: 0.4rem;
+      margin-top: 1.2rem;
+    }
+    input, select {
+      width: 100%;
+      background: var(--layer);
+      border: 1px solid rgba(200,115,58,0.15);
+      border-radius: 6px;
+      color: var(--cream);
+      padding: 0.7rem 1rem;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: var(--terra);
+    }
+    input[type="password"] { letter-spacing: 0.1em; }
+
+    .drop-zone {
+      margin-top: 1.2rem;
+      border: 2px dashed rgba(200,115,58,0.25);
+      border-radius: 8px;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--terra);
+      background: rgba(200,115,58,0.05);
+    }
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      border: none;
+      background: none;
+    }
+    .drop-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .drop-text { font-size: 0.8rem; color: var(--fog); }
+    .drop-name { font-size: 0.9rem; color: var(--terra2); margin-top: 0.5rem; font-weight: 600; }
+
+    .preview-img {
+      display: none;
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 1.8rem;
+      padding: 0.9rem;
+      background: var(--terra);
+      color: var(--ink);
+      border: none;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover:not(:disabled) { background: var(--terra2); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .status {
+      margin-top: 1.2rem;
+      padding: 0.8rem 1rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      display: none;
+    }
+    .status.info  { background: rgba(23,184,172,0.1); border: 1px solid rgba(23,184,172,0.3); color: var(--teal); }
+    .status.ok    { background: rgba(50,200,100,0.1); border: 1px solid rgba(50,200,100,0.3); color: #5dde8a; }
+    .status.error { background: rgba(220,60,60,0.1);  border: 1px solid rgba(220,60,60,0.3);  color: #f08080; }
+
+    .step { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+    .step-icon { font-size: 1rem; }
+
+    .token-hint {
+      font-size: 0.72rem;
+      color: var(--fog);
+      margin-top: 0.4rem;
+    }
+    .token-hint a { color: var(--terra2); }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>📸 Photo Uploader</h1>
+  <p class="subtitle">SinisterNL · GitHub Pages</p>
+
+  <label>GitHub Token</label>
+  <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+  <p class="token-hint">
+    Need one? <a href="https://github.com/settings/tokens/new?scopes=repo&description=SinisterNL+Uploader" target="_blank">Create token here</a> — select <strong>repo</strong> scope.
+  </p>
+
+  <label>Section</label>
+  <select id="section">
+    <option value="miniatures">Miniatures</option>
+    <option value="curacao">Curaçao</option>
+  </select>
+
+  <label>Photo</label>
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" accept="image/*" />
+    <div class="drop-icon">🖼️</div>
+    <div class="drop-text">Drop image here or click to browse</div>
+    <div class="drop-name" id="dropName"></div>
+  </div>
+  <img class="preview-img" id="preview" />
+
+  <label>Filename on site (in images/ folder)</label>
+  <input type="text" id="filename" placeholder="e.g. Cloaked2.jpg" />
+
+  <label>Caption</label>
+  <input type="text" id="caption" placeholder="e.g. Cloaked — Back view" />
+
+  <button class="btn" id="uploadBtn" onclick="upload()">Upload & Add to Site</button>
+
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+  const OWNER = 'SinisterNL';
+  const REPO  = 'SinisterNL.github.io';
+  const BRANCH = 'main';
+
+  let fileData = null;
+
+  const fileInput = document.getElementById('fileInput');
+  const dropZone  = document.getElementById('dropZone');
+  const preview   = document.getElementById('preview');
+  const dropName  = document.getElementById('dropName');
+
+  fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); });
+
+  function handleFile(file) {
+    if (!file) return;
+    dropName.textContent = file.name;
+    // Auto-fill filename
+    if (!document.getElementById('filename').value) {
+      document.getElementById('filename').value = file.name;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      fileData = e.target.result.split(',')[1]; // base64
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function setStatus(msg, type) {
+    const el = document.getElementById('status');
+    el.innerHTML = msg;
+    el.className = 'status ' + type;
+    el.style.display = 'block';
+  }
+
+  async function githubRequest(path, method, body) {
+    const token = document.getElementById('token').value.trim();
+    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github+json'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || res.statusText);
+    return data;
+  }
+
+  async function upload() {
+    const token    = document.getElementById('token').value.trim();
+    const section  = document.getElementById('section').value;
+    const filename = document.getElementById('filename').value.trim();
+    const caption  = document.getElementById('caption').value.trim();
+
+    if (!token)    return setStatus('⚠️ Enter your GitHub token first.', 'error');
+    if (!fileData) return setStatus('⚠️ Select an image first.', 'error');
+    if (!filename) return setStatus('⚠️ Enter a filename.', 'error');
+    if (!caption)  return setStatus('⚠️ Enter a caption.', 'error');
+
+    document.getElementById('uploadBtn').disabled = true;
+
+    try {
+      // Step 1: Upload image
+      setStatus('<div class="step"><span class="step-icon">⬆️</span> Uploading image...</div>', 'info');
+
+      // Check if image already exists (need SHA to overwrite)
+      let imageSha = undefined;
+      try {
+        const existing = await githubRequest(`images/${filename}`, 'GET');
+        imageSha = existing.sha;
+      } catch(e) { /* new file, no sha needed */ }
+
+      await githubRequest(`images/${filename}`, 'PUT', {
+        message: `Add image: ${filename}`,
+        content: fileData,
+        branch: BRANCH,
+        ...(imageSha ? { sha: imageSha } : {})
+      });
+
+      // Step 2: Fetch index.html
+      setStatus('<div class="step"><span class="step-icon">⬆️</span> Image uploaded ✓</div><div class="step"><span class="step-icon">📄</span> Updating index.html...</div>', 'info');
+
+      const indexData = await githubRequest('index.html', 'GET');
+      let html = atob(indexData.content.replace(/\n/g, ''));
+      const sha = indexData.sha;
+
+      // Step 3: Inject into the right array
+      const marker = section === 'miniatures' ? 'END_MINIATURES' : 'END_CURACAO';
+      const newEntry = `      { src: "images/${filename}", caption: "${caption}" },\n    `;
+
+      if (!html.includes(`// ${marker}`)) {
+        throw new Error(`Could not find ${marker} marker in index.html. Make sure you're using the updated index.html from the uploader package.`);
+      }
+
+      html = html.replace(`    ]; // ${marker}`, `    ${newEntry}]; // ${marker}`);
+
+      // Step 4: Push updated index.html
+      const encoded = btoa(unescape(encodeURIComponent(html)));
+      await githubRequest('index.html', 'PUT', {
+        message: `Add ${filename} to ${section}`,
+        content: encoded,
+        sha,
+        branch: BRANCH
+      });
+
+      setStatus(
+        `<div class="step"><span class="step-icon">✅</span> Image uploaded</div>` +
+        `<div class="step"><span class="step-icon">✅</span> index.html updated</div>` +
+        `<div class="step"><span class="step-icon">🌐</span> Live in ~30 seconds at <a href="https://sinisternl.github.io" target="_blank" style="color:var(--terra2)">sinisternl.github.io</a></div>`,
+        'ok'
+      );
+
+      // Reset form
+      document.getElementById('filename').value = '';
+      document.getElementById('caption').value = '';
+      fileData = null;
+      preview.style.display = 'none';
+      dropName.textContent = '';
+
+    } catch(err) {
+      setStatus(`❌ ${err.message}`, 'error');
+    }
+
+    document.getElementById('uploadBtn').disabled = false;
+  }
+</script>
+</body>
+</html>
