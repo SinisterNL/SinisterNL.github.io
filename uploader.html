@@ -185,12 +185,88 @@
   <button class="btn" id="uploadBtn" onclick="upload()">Upload & Add to Site</button>
 
   <div class="status" id="status"></div>
+
+  <hr style="border:none; border-top:1px solid rgba(200,115,58,0.15); margin: 2rem 0;" />
+
+  <h2 style="font-size:1rem; color:var(--terra); margin-bottom:0.3rem;">📄 Push index.html</h2>
+  <p style="font-size:0.75rem; color:var(--fog); margin-bottom:1rem;">Got an updated index.html from Claude? Drop it here to push it live instantly.</p>
+
+  <div class="drop-zone" id="htmlDropZone">
+    <input type="file" id="htmlFileInput" accept=".html" />
+    <div class="drop-icon">📄</div>
+    <div class="drop-text">Drop index.html here or click to browse</div>
+    <div class="drop-name" id="htmlDropName"></div>
+  </div>
+
+  <button class="btn" id="pushBtn" onclick="pushIndex()" style="background:var(--teal); color:var(--ink); margin-top:1rem;">Push index.html to GitHub</button>
+
+  <div class="status" id="pushStatus"></div>
 </div>
 
 <script>
   const OWNER = 'SinisterNL';
   const REPO  = 'SinisterNL.github.io';
   const BRANCH = 'main';
+
+  let htmlFileData = null;
+
+  const htmlFileInput = document.getElementById('htmlFileInput');
+  const htmlDropZone  = document.getElementById('htmlDropZone');
+  const htmlDropName  = document.getElementById('htmlDropName');
+
+  htmlFileInput.addEventListener('change', e => handleHtmlFile(e.target.files[0]));
+  htmlDropZone.addEventListener('dragover', e => { e.preventDefault(); htmlDropZone.classList.add('dragover'); });
+  htmlDropZone.addEventListener('dragleave', () => htmlDropZone.classList.remove('dragover'));
+  htmlDropZone.addEventListener('drop', e => { e.preventDefault(); htmlDropZone.classList.remove('dragover'); handleHtmlFile(e.dataTransfer.files[0]); });
+
+  function handleHtmlFile(file) {
+    if (!file) return;
+    htmlDropName.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = e => { htmlFileData = e.target.result; };
+    reader.readAsText(file, 'UTF-8');
+  }
+
+  function setPushStatus(msg, type) {
+    const el = document.getElementById('pushStatus');
+    el.innerHTML = msg;
+    el.className = 'status ' + type;
+    el.style.display = 'block';
+  }
+
+  async function pushIndex() {
+    const token = document.getElementById('token').value.trim();
+    if (!token)       return setPushStatus('⚠️ Enter your GitHub token first.', 'error');
+    if (!htmlFileData) return setPushStatus('⚠️ Drop an index.html file first.', 'error');
+
+    document.getElementById('pushBtn').disabled = true;
+    setPushStatus('<div class="step"><span class="step-icon">📄</span> Pushing index.html...</div>', 'info');
+
+    try {
+      const existing = await githubRequest('index.html', 'GET');
+      const sha = existing.sha;
+      const encoded = btoa(unescape(encodeURIComponent(htmlFileData)));
+
+      await githubRequest('index.html', 'PUT', {
+        message: 'Update index.html via uploader',
+        content: encoded,
+        sha,
+        branch: BRANCH
+      });
+
+      setPushStatus(
+        `<div class="step"><span class="step-icon">✅</span> index.html pushed successfully</div>` +
+        `<div class="step"><span class="step-icon">🌐</span> Live in ~30 seconds at <a href="https://sinisternl.github.io" target="_blank" style="color:var(--terra2)">sinisternl.github.io</a></div>`,
+        'ok'
+      );
+      htmlFileData = null;
+      htmlDropName.textContent = '';
+    } catch(err) {
+      setPushStatus(`❌ ${err.message}`, 'error');
+    }
+
+    document.getElementById('pushBtn').disabled = false;
+  }
 
   let fileData = null;
 
