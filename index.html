@@ -30,7 +30,7 @@
       overflow-x: hidden;
     }
 
-    /* ââ GRAIN OVERLAY ââ */
+    /* ── GRAIN OVERLAY ── */
     body::after {
       content: '';
       position: fixed;
@@ -42,7 +42,7 @@
       background-size: 220px;
     }
 
-    /* ââ NAV ââ */
+    /* ── NAV ── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -84,7 +84,7 @@
 
     .nav-links a:hover { color: var(--terra2); }
 
-    /* ââ HERO ââ */
+    /* ── HERO ── */
     #hero {
       position: relative;
       height: 100vh;
@@ -208,7 +208,7 @@
       50%      { opacity: 1;   transform: scaleY(1) translateY(0); }
     }
 
-    /* ââ SECTIONS ââ */
+    /* ── SECTIONS ── */
     section { padding: 8rem 3.5rem; }
 
     .section-inner {
@@ -252,7 +252,7 @@
       margin: 1.8rem 0;
     }
 
-    /* ââ PHOTO GRID ââ */
+    /* ── PHOTO GRID ── */
     .photo-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -328,13 +328,13 @@
       fill: none;
     }
 
-    /* ââ SECTION BACKGROUNDS ââ */
+    /* ── SECTION BACKGROUNDS ── */
     #curacao   { background: var(--ink); }
     #miniatures { background: var(--deep); }
     #projects  { background: var(--ink); }
     #dnd       { background: var(--deep); }
 
-    /* ââ PROJECT CARDS ââ */
+    /* ── PROJECT CARDS ── */
     .project-cards {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -404,7 +404,7 @@
       border-color: var(--terra);
     }
 
-    /* ââ TAGS ââ */
+    /* ── TAGS ── */
     .tags {
       display: flex;
       flex-wrap: wrap;
@@ -423,7 +423,7 @@
       border-radius: 1px;
     }
 
-    /* ââ PHOTO HOVER BACKGROUND ââ */
+    /* ── PHOTO HOVER BACKGROUND ── */
     #photo-bg {
       position: fixed;
       inset: 0;
@@ -438,7 +438,7 @@
 
     #photo-bg.active { opacity: 0.5; }
 
-    /* ââ FOOTER ââ */
+    /* ── FOOTER ── */
     footer {
       background: #040b14;
       padding: 4rem 3.5rem;
@@ -464,7 +464,7 @@
       font-weight: 500;
     }
 
-    /* ââ REVEAL ââ */
+    /* ── REVEAL ── */
     .reveal {
       opacity: 0;
       transform: translateY(30px);
@@ -475,7 +475,7 @@
       transform: translateY(0);
     }
 
-    /* ââ RESPONSIVE ââ */
+    /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       nav { padding: 1rem 1.5rem; }
       .nav-links { gap: 1.4rem; }
@@ -508,7 +508,7 @@
     <div class="hero-bg"></div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <p class="hero-eyebrow">Personal &nbsp;/&nbsp; CuraÃ§ao</p>
+      <p class="hero-eyebrow">Personal &nbsp;/&nbsp; Curaçao</p>
       <h1 class="hero-title">Sinister<strong>NL</strong></h1>
       <p class="hero-bio">Hobby miniature painter, music obsessive, and collector of things worth obsessing over.</p>
     </div>
@@ -518,19 +518,19 @@
     </div>
   </section>
 
-  <!-- CURAÃAO -->
+  <!-- CURAÇAO -->
   <section id="curacao">
     <div class="section-inner">
       <div class="reveal">
         <p class="section-label">Island life</p>
         <h2 class="section-title">Life on Cura&ccedil;ao</h2>
         <div class="divider"></div>
-        <p class="section-text">Sun, salt, and the occasional plate of satay. Life on the island has its own rhythm â rocky coastlines, turquoise water, and food that hits differently when you're 8,000 km from home.</p>
+        <p class="section-text">Sun, salt, and the occasional plate of satay. Life on the island has its own rhythm — rocky coastlines, turquoise water, and food that hits differently when you're 8,000 km from home.</p>
       </div>
       <div class="photo-grid reveal">
         <div class="photo-item wide">
-          <img src="images/beach.jpg" alt="Beach CuraÃ§ao" loading="lazy" />
-          <div class="photo-caption">CuraÃ§ao coastline</div>
+          <img src="images/beach.jpg" alt="Beach Curaçao" loading="lazy" />
+          <div class="photo-caption">Curaçao coastline</div>
         </div>
         <div class="photo-item">
           <img src="images/coastline.jpg" alt="Rocky coastline" loading="lazy" />
@@ -573,19 +573,19 @@
         <p class="section-label">Projects</p>
         <h2 class="section-title">Things I built.</h2>
         <div class="divider"></div>
-        <p class="section-text">Tools and experiments I made for myself â and left online in case they're useful to someone else.</p>
+        <p class="section-text">Tools and experiments I made for myself — and left online in case they're useful to someone else.</p>
       </div>
       <div class="project-cards reveal">
         <div class="project-card">
-          <p class="project-card-label">Prijsanalyse Â· CuraÃ§ao</p>
+          <p class="project-card-label">Prijsanalyse · Curaçao</p>
           <h3 class="project-card-title">Boodschappen<br/>Prijsgrafiek</h3>
-          <p class="project-card-text">Interactieve prijsgrafiek van supermarkten op CuraÃ§ao. Vergelijk producten per winkel, bekijk prijstrends over tijd en filter op categorie â Mangusa, Goisco en Centrum.</p>
+          <p class="project-card-text">Interactieve prijsgrafiek van supermarkten op Curaçao. Vergelijk producten per winkel, bekijk prijstrends over tijd en filter op categorie — Mangusa, Goisco en Centrum.</p>
           <div class="tags">
             <span class="tag">Mangusa</span>
             <span class="tag">Goisco</span>
             <span class="tag">Centrum</span>
           </div>
-          <a href="boodschappen.html" class="btn-outline">Open grafiek â</a>
+          <a href="boodschappen.html" class="btn-outline">Open grafiek →</a>
         </div>
       </div>
     </div>
@@ -605,7 +605,7 @@
           <span class="tag">7 Races</span>
           <span class="tag">NL / EN</span>
         </div>
-        <a href="dnd.html" class="btn-outline" style="margin-top: 2rem;">Begin Adventure â</a>
+        <a href="dnd.html" class="btn-outline" style="margin-top: 2rem;">Begin Adventure ⚔</a>
       </div>
     </div>
   </section>
@@ -613,17 +613,16 @@
   <!-- FOOTER -->
   <footer>
     <p class="footer-name">SinisterNL</p>
-    <p class="footer-sub">CuraÃ§ao &mdash; The Netherlands</p>
+    <p class="footer-sub">Curaçao &mdash; The Netherlands</p>
   </footer>
 
   <script>
-    // ââ PHOTO DATA â edit these arrays to add/remove photos ââ
+    // ── PHOTO DATA — edit these arrays to add/remove photos ──
     const MINIATURES = [
       { src: "images/miniatures1.jpg", caption: "Using my new paint set" },
       { src: "images/miniatures2.jpg", caption: "First new project" },
       { src: "images/Cloaked.jpg", caption: "Cloaked &mdash; Work in Progress" },
       { src: "images/Cloaked2.jpg", caption: "Cloaked &mdash; from the side" },
-          { src: "images/1000059004.jpg", caption: "Cloaked1" },
     ]; // END_MINIATURES
 
     // Render miniatures grid
