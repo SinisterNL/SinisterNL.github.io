@@ -305,7 +305,7 @@ function buildDatasets(storeKey){
       pointRadius:isRecurring?7:5,pointHoverRadius:11,
       borderWidth:isRecurring?2.5:1.5,
       borderDash:isRecurring?[]:[5,4],
-      spanGaps:false,tension:0.15,isRecurring,
+      spanGaps:isRecurring,tension:0.15,isRecurring,
       hitRadius:8,hoverBorderWidth:4,
       trend,pct,
     };
