@@ -1,11 +1,13 @@
 # SinisterNL.github.io — Claude Code Instructions
 
 ## Deployment
-- **Host**: GitHub Pages → live at `sinisternl.net` (CNAME)
+- **Host**: Cloudflare Workers (static assets) → live at `sinisternl.net`
 - **Branch**: push to `main` to deploy. No build step needed — static HTML.
-- **Deploy command**: `git add <files> && git commit -m "..." && git push -u origin main`
-- GitHub Pages auto-deploys within ~60 seconds of push.
-- Do NOT use `wrangler`, `npm run build`, or any other build tool — this is plain HTML/CSS/JS.
+- **Deploy command**: `git add -A && git commit -m "..." && git push`
+- GitHub Actions runs `wrangler deploy` automatically on every push to `main`.
+- Site is live within ~30 seconds of push.
+- Do NOT use `npm run build` or any other build tool — this is plain HTML/CSS/JS.
+- After every change, always commit and push so the site stays in sync.
 
 ## Stack
 - Pure HTML + CSS + JS. No framework, no bundler.
