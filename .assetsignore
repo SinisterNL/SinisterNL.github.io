@@ -1,0 +1,15 @@
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+
+# CI / dev files — not served to visitors
+.github
+.git
+*.py
+*.bat
+*.ps1
+node_modules
+docs
