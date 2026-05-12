@@ -24,14 +24,14 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Push ANTHROPIC_API_KEY secret
-        run: echo "$VAL" | wrangler secret put ANTHROPIC_API_KEY
+        run: printf '%s' "$VAL" | wrangler secret put ANTHROPIC_API_KEY
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           VAL: ${{ secrets.ANTHROPIC_API_KEY }}
 
       - name: Push GH_TOKEN secret
-        run: echo "$VAL" | wrangler secret put GH_TOKEN
+        run: printf '%s' "$VAL" | wrangler secret put GH_TOKEN
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
