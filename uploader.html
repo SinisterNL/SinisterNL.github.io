@@ -21,7 +21,7 @@
       background: var(--deep); border: 1px solid rgba(200,115,58,0.2);
       border-radius: 12px; padding: 2.5rem; width: 100%; max-width: 520px;
     }
-    h1 { font-size: 1.3rem; color: var(--terra); margin-bottom: 0.3rem; letter-spacing: 0.02em; }
+    h1 { font-size: 1.3rem; color: var(--terra); margin-bottom: 0.3rem; }
     .subtitle { font-size: 0.75rem; color: var(--fog); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2rem; }
 
     label {
@@ -45,12 +45,11 @@
       font-size: 0.88rem; outline: none; transition: border-color 0.2s;
     }
     input:focus, select:focus { border-color: var(--terra); }
-    input[type="password"] { letter-spacing: 0.1em; }
 
     .drop-zone {
-      margin-top: 1.2rem; border: 2px dashed rgba(200,115,58,0.25);
-      border-radius: 8px; padding: 2.5rem 1rem; text-align: center;
-      cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative;
+      border: 2px dashed rgba(200,115,58,0.25); border-radius: 8px;
+      padding: 2.5rem 1rem; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; position: relative;
     }
     .drop-zone:hover, .drop-zone.dragover { border-color: var(--terra); background: rgba(200,115,58,0.05); }
     .drop-zone input[type="file"] {
@@ -67,7 +66,7 @@
     }
 
     .ai-status {
-      display: none; margin-top: 0.8rem; padding: 0.7rem 1rem;
+      margin-top: 0.8rem; padding: 0.7rem 1rem;
       background: rgba(212,168,67,0.08); border: 1px solid rgba(212,168,67,0.25);
       border-radius: 6px; font-size: 0.8rem; color: var(--gold);
       display: none; align-items: center; gap: 0.6rem;
@@ -89,29 +88,17 @@
     .btn:hover:not(:disabled) { background: var(--terra2); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .status {
-      margin-top: 1.2rem; padding: 0.8rem 1rem; border-radius: 6px;
-      font-size: 0.82rem; display: none;
-    }
-    .status.info  { background: rgba(23,184,172,0.1);  border: 1px solid rgba(23,184,172,0.3);  color: var(--teal);   display: block; }
-    .status.ok    { background: rgba(50,200,100,0.1);  border: 1px solid rgba(50,200,100,0.3);  color: #5dde8a;       display: block; }
-    .status.error { background: rgba(220,60,60,0.1);   border: 1px solid rgba(220,60,60,0.3);   color: #f08080;       display: block; }
-
+    .status { margin-top: 1.2rem; padding: 0.8rem 1rem; border-radius: 6px; font-size: 0.82rem; display: none; }
+    .status.info  { background: rgba(23,184,172,0.1);  border: 1px solid rgba(23,184,172,0.3);  color: var(--teal);  display: block; }
+    .status.ok    { background: rgba(50,200,100,0.1);  border: 1px solid rgba(50,200,100,0.3);  color: #5dde8a;      display: block; }
+    .status.error { background: rgba(220,60,60,0.1);   border: 1px solid rgba(220,60,60,0.3);   color: #f08080;      display: block; }
     .step { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
-    .token-hint { font-size: 0.72rem; color: var(--fog); margin-top: 0.4rem; }
-    .token-hint a { color: var(--terra2); }
   </style>
 </head>
 <body>
 <div class="card">
   <h1>📸 Photo Uploader</h1>
-  <p class="subtitle">SinisterNL · AI-powered</p>
-
-  <label>GitHub Token</label>
-  <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
-  <p class="token-hint">
-    Need one? <a href="https://github.com/settings/tokens/new?scopes=repo&description=SinisterNL+Uploader" target="_blank">Create token</a> — select <strong>repo</strong> scope.
-  </p>
+  <p class="subtitle">SinisterNL · Drop. Done.</p>
 
   <label>Photo</label>
   <div class="drop-zone" id="dropZone">
@@ -123,7 +110,7 @@
   <img class="preview-img" id="preview" />
 
   <div class="ai-status" id="aiStatus">
-    <div class="spinner"></div>
+    <div class="spinner" id="spinner"></div>
     <span id="aiStatusText">Analyzing photo with AI…</span>
   </div>
 
@@ -140,9 +127,9 @@
     <label for="caption">Caption</label>
     <span class="ai-badge" id="captionBadge">AI ✨</span>
   </div>
-  <input type="text" id="caption" placeholder="AI will suggest one after you drop a photo" />
+  <input type="text" id="caption" placeholder="AI will suggest after you drop a photo" />
 
-  <label>Filename on site</label>
+  <label>Filename</label>
   <input type="text" id="filename" placeholder="e.g. beach2.jpg" />
 
   <button class="btn" id="uploadBtn" onclick="upload()">Upload &amp; Publish</button>
@@ -150,18 +137,6 @@
 </div>
 
 <script>
-  const OWNER = 'SinisterNL';
-  const REPO  = 'SinisterNL.github.io';
-  const BRANCH = 'main';
-
-  // Restore saved token
-  const tokenInput = document.getElementById('token');
-  const saved = localStorage.getItem('sinisternl_gh_token');
-  if (saved) tokenInput.value = saved;
-  tokenInput.addEventListener('change', () =>
-    localStorage.setItem('sinisternl_gh_token', tokenInput.value.trim())
-  );
-
   let fileData = null;
   let fileMediaType = 'image/jpeg';
 
@@ -174,8 +149,7 @@
   dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
   dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
+    e.preventDefault(); dropZone.classList.remove('dragover');
     handleFile(e.dataTransfer.files[0]);
   });
 
@@ -199,11 +173,13 @@
   async function analyzeWithAI() {
     const aiStatus     = document.getElementById('aiStatus');
     const aiStatusText = document.getElementById('aiStatusText');
+    const spinner      = document.getElementById('spinner');
     const sectionBadge = document.getElementById('sectionBadge');
     const captionBadge = document.getElementById('captionBadge');
 
-    aiStatus.classList.add('show');
+    spinner.style.display = 'block';
     aiStatusText.textContent = 'Analyzing photo with AI…';
+    aiStatus.classList.add('show');
     sectionBadge.classList.remove('show');
     captionBadge.classList.remove('show');
 
@@ -214,22 +190,16 @@
         body: JSON.stringify({ imageData: fileData, mediaType: fileMediaType })
       });
       const result = await res.json();
-
       if (result.error) throw new Error(result.error);
 
-      if (result.section) {
-        document.getElementById('section').value = result.section;
-        sectionBadge.classList.add('show');
-      }
-      if (result.caption) {
-        document.getElementById('caption').value = result.caption;
-        captionBadge.classList.add('show');
-      }
+      if (result.section) { document.getElementById('section').value = result.section; sectionBadge.classList.add('show'); }
+      if (result.caption) { document.getElementById('caption').value = result.caption; captionBadge.classList.add('show'); }
 
-      aiStatusText.textContent = '✓ AI categorized — review and adjust if needed';
+      spinner.style.display = 'none';
+      aiStatusText.textContent = '✓ AI categorized — adjust if needed';
       setTimeout(() => aiStatus.classList.remove('show'), 3000);
-
     } catch (err) {
+      spinner.style.display = 'none';
       aiStatusText.textContent = '⚠ AI unavailable — fill in manually';
       setTimeout(() => aiStatus.classList.remove('show'), 3000);
     }
@@ -237,33 +207,14 @@
 
   function setStatus(msg, type) {
     const el = document.getElementById('status');
-    el.innerHTML = msg;
-    el.className = 'status ' + type;
-  }
-
-  async function githubRequest(path, method, body) {
-    const token = document.getElementById('token').value.trim();
-    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github+json'
-      },
-      body: body ? JSON.stringify(body) : undefined
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || res.statusText);
-    return data;
+    el.innerHTML = msg; el.className = 'status ' + type;
   }
 
   async function upload() {
-    const token    = document.getElementById('token').value.trim();
     const section  = document.getElementById('section').value;
     const filename = document.getElementById('filename').value.trim();
     const caption  = document.getElementById('caption').value.trim();
 
-    if (!token)    return setStatus('⚠️ Enter your GitHub token first.', 'error');
     if (!fileData) return setStatus('⚠️ Select an image first.', 'error');
     if (!filename) return setStatus('⚠️ Enter a filename.', 'error');
     if (!caption)  return setStatus('⚠️ Enter a caption.', 'error');
@@ -272,47 +223,33 @@
 
     try {
       setStatus('<div class="step"><span>⬆️</span> Uploading image…</div>', 'info');
-
-      let imageSha;
-      try { imageSha = (await githubRequest(`images/${filename}`, 'GET')).sha; } catch {}
-
-      await githubRequest(`images/${filename}`, 'PUT', {
-        message: `Add image: ${filename}`,
-        content: fileData,
-        branch: BRANCH,
-        ...(imageSha ? { sha: imageSha } : {})
+      const up = await fetch('/api/upload-image', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename, imageData: fileData })
       });
+      const upResult = await up.json();
+      if (upResult.error) throw new Error(upResult.error);
 
-      setStatus('<div class="step"><span>✅</span> Image uploaded</div><div class="step"><span>📄</span> Updating index.html…</div>', 'info');
-
-      const indexData = await githubRequest('index.html', 'GET');
-      let html = atob(indexData.content.replace(/\n/g, ''));
-      const sha = indexData.sha;
-
-      const marker = section === 'miniatures' ? 'END_MINIATURES' : 'END_CURACAO';
-      if (!html.includes(`// ${marker}`)) throw new Error(`Marker ${marker} not found in index.html`);
-
-      const newEntry = `      { src: "images/${filename}", caption: "${caption}" },\n    `;
-      html = html.replace(`    ]; // ${marker}`, `    ${newEntry}]; // ${marker}`);
-
-      await githubRequest('index.html', 'PUT', {
-        message: `Add ${filename} to ${section}`,
-        content: btoa(unescape(encodeURIComponent(html))),
-        sha, branch: BRANCH
+      setStatus('<div class="step"><span>✅</span> Image uploaded</div><div class="step"><span>📄</span> Updating page…</div>', 'info');
+      const idx = await fetch('/api/update-index', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ section, filename, caption })
       });
+      const idxResult = await idx.json();
+      if (idxResult.error) throw new Error(idxResult.error);
 
       setStatus(
         `<div class="step"><span>✅</span> Image uploaded</div>` +
-        `<div class="step"><span>✅</span> index.html updated</div>` +
-        `<div class="step"><span>🚀</span> Deploying to sinisternl.net — live in ~60s</div>`,
+        `<div class="step"><span>✅</span> Page updated</div>` +
+        `<div class="step"><span>🚀</span> Deploying — live on sinisternl.net in ~60s</div>`,
         'ok'
       );
 
-      document.getElementById('filename').value = '';
-      document.getElementById('caption').value  = '';
       fileData = null;
       preview.style.display = 'none';
       dropName.textContent = '';
+      document.getElementById('filename').value = '';
+      document.getElementById('caption').value  = '';
       document.getElementById('sectionBadge').classList.remove('show');
       document.getElementById('captionBadge').classList.remove('show');
 
