@@ -189,7 +189,9 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageData: fileData, mediaType: fileMediaType })
       });
-      const result = await res.json();
+      const raw = await res.text();
+      let result;
+      try { result = JSON.parse(raw); } catch { throw new Error('HTTP ' + res.status + ': ' + raw.slice(0, 120)); }
       if (result.error) throw new Error(result.error);
 
       if (result.section) { document.getElementById('section').value = result.section; sectionBadge.classList.add('show'); }

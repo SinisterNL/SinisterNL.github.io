@@ -24,6 +24,15 @@ export default {
       }
     }
 
+    // Diagnostic ping
+    if (url.pathname === '/api/ping') {
+      return json({
+        ok: true,
+        hasAnthropicKey: !!env.ANTHROPIC_API_KEY,
+        hasGhToken: !!env.GH_TOKEN
+      });
+    }
+
     return env.ASSETS.fetch(request);
   }
 };
