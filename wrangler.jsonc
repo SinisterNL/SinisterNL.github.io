@@ -1,7 +1,15 @@
 {
   "name": "sinisternl",
   "compatibility_date": "2026-05-10",
+  "main": "src/worker.js",
   "assets": {
-    "directory": "."
-  }
+    "directory": ".",
+    "binding": "ASSETS"
+  },
+  "routes": [
+    { "pattern": "sinisternl.net/*", "zone_name": "sinisternl.net" }
+  ],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
 }
