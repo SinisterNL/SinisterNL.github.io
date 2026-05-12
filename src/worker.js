@@ -125,7 +125,7 @@ async function github(path, method, body, env) {
   const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/${path}`, {
     method,
     headers: {
-      'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+      'Authorization': `Bearer ${env.GH_TOKEN}`,
       'Content-Type': 'application/json',
       'Accept': 'application/vnd.github+json',
       'User-Agent': 'SinisterNL-Worker'
