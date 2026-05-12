@@ -200,8 +200,8 @@
       setTimeout(() => aiStatus.classList.remove('show'), 3000);
     } catch (err) {
       spinner.style.display = 'none';
-      aiStatusText.textContent = '⚠ AI unavailable — fill in manually';
-      setTimeout(() => aiStatus.classList.remove('show'), 3000);
+      aiStatusText.textContent = '⚠ ' + err.message;
+      setTimeout(() => aiStatus.classList.remove('show'), 6000);
     }
   }
 
