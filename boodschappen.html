@@ -287,8 +287,8 @@ const TREND_EMOJI={none:'⚫','big-up':'🔴',up:'🟠',down:'🟢',stable:'🔵
 function parseDate(s){const p=s.replace(/\s*\(\d+\)/,'').split('-');return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));}
 
 // ── BUILD DATASETS ────────────────────────────────────────────────────────
-const charts={}, vis={mangusa:{},goisco:{},centrum:{}};
-const activeCats={mangusa:new Set(),goisco:new Set(),centrum:new Set()};
+const charts={}, vis={mangusa:{},goisco:{},centrum:{},esperamos:{},carrefour:{}};
+const activeCats={mangusa:new Set(),goisco:new Set(),centrum:new Set(),esperamos:new Set(),carrefour:new Set()};
 
 function buildDatasets(storeKey){
   // Reset trend counters per store build
@@ -475,7 +475,7 @@ function filterStore(storeKey,mode,btn){
 function buildDashboard(){
   // Spending chart
   const allDates=[],allMangusa=[],allGoisco=[],allCentrum=[];
-  const storeVisitMap={mangusa:{},goisco:{},centrum:{}};
+  const storeVisitMap=Object.fromEntries(Object.keys(VISITS).map(k=>[k,{}]));
   Object.entries(VISITS).forEach(([store,visits])=>{
     visits.forEach(v=>{storeVisitMap[store][v.date]=v.total;});
   });
@@ -561,7 +561,7 @@ function buildDashboard(){
   Object.entries(RAW).forEach(([store,prods])=>{
     const n=Object.keys(prods).length;
     const recurring=Object.values(prods).filter(p=>Object.keys(p).length>1).length;
-    const storeLabel={mangusa:'🏪 Mangusa',goisco:'🏬 Goisco',centrum:'🛒 Centrum'}[store];
+    const storeLabel={mangusa:'🏪 Mangusa',goisco:'🏬 Goisco',centrum:'🛒 Centrum',esperamos:'🛍️ Esperamos',carrefour:'🏬 Carrefour'}[store]||store;
     statsEl.innerHTML+=`<div class="stat-row">
       <span class="label">${storeLabel}</span>
       <span class="val">${n} producten</span>
@@ -573,7 +573,7 @@ function buildDashboard(){
   const visitEl=document.getElementById('visit-stats');
   Object.entries(VISITS).forEach(([store,visits])=>{
     const avg=(visits.reduce((s,v)=>s+v.total,0)/visits.length).toFixed(2);
-    const storeLabel={mangusa:'🏪 Mangusa',goisco:'🏬 Goisco',centrum:'🛒 Centrum'}[store];
+    const storeLabel={mangusa:'🏪 Mangusa',goisco:'🏬 Goisco',centrum:'🛒 Centrum',esperamos:'🛍️ Esperamos',carrefour:'🏬 Carrefour'}[store]||store;
     visitEl.innerHTML+=`<div class="stat-row">
       <span class="label">${storeLabel} (${visits.length}×)</span>
       <span class="val">ø ANG ${avg}</span>
